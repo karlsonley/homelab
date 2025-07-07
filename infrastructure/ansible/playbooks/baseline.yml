@@ -1,0 +1,16 @@
+- name: Baseline setup for all hosts
+  become: true
+  hosts: all
+  user: root
+  roles:
+  - role: devsec.hardening.os_hardening
+  - role: geerlingguy.docker
+  - role: hifis.toolkit.unattended_upgrades
+    unattended_remove_unused_dependencies: true
+    unattended_remove_unused_kernel_packages: true
+    unattended_automatic_reboot: true
+    unattended_automatic_reboot_time: 03:00
+    unattended_clean_interval: 7
+    unattended_origins_patterns:
+    - 'origin=${distro_id},archive=${distro_codename}-security'
+    - 'o=${distro_id},a=${distro_codename}-updates'
