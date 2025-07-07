@@ -1,0 +1,43 @@
+variable "name" {
+  type        = string
+  description = "The name to use for this instance"
+}
+
+variable "project_id" {
+  type        = string
+  description = "The project ID to use for this instance"
+}
+
+variable "sequence_number" {
+  type        = string
+  description = "The sequence number to suffix resource names with"
+}
+
+variable "public_ssh_key" {
+  type        = string
+  description = "The public SSH key to add to this instance for authentication"
+}
+
+variable "image" {
+  type        = string
+  description = "The image to use while provisioning this instance"
+  default     = "debian_bookworm"
+}
+
+variable "type" {
+  type        = string
+  description = "The type of instance to provision"
+  default     = "STARDUST1-S"
+}
+
+variable "root_volume_size_gb" {
+  type        = number
+  description = "The size in GB to use for the root volume for this instance"
+  default     = 20
+}
+
+variable "tags" {
+  type        = list(string)
+  description = "A list of tags to assign to this instance"
+  default     = null
+}
