@@ -41,3 +41,18 @@ variable "tags" {
   description = "A list of tags to assign to this instance"
   default     = null
 }
+
+variable "security_group_rules" {
+  type = set(object({
+    protocol = string
+    port     = number
+    ip_range = string
+  }))
+  description = <<-EOT
+    A set of the security group rules to add to this instance
+    - protocol `string`: TCP, UDP, ICMP or ANY
+    - port     `number`: The port to use for this rule
+    - ip_range `string`: The IP CIDR range to use for this rule
+  EOT
+  default     = []
+}

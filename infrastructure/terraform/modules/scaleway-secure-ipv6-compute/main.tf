@@ -14,10 +14,15 @@ resource "scaleway_instance_security_group" "this" {
 resource "scaleway_instance_security_group_rules" "this" {
   security_group_id = scaleway_instance_security_group.this.id
 
-  inbound_rule {
-    action   = "accept"
-    port     = 22
-    ip_range = "::/0"
+  dynamic "inbound_rule" {
+    for_each = var.security_group_rules
+
+    content {
+      action   = "accept"
+      port     = inbound_rule.value.port
+      protocol = inbound_rule.value.protocol
+      ip_range = inbound_rule.value.ip_range
+    }
   }
 }
 

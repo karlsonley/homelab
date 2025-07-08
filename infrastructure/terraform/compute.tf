@@ -10,5 +10,32 @@ module "pangolin_compute_001" {
   project_id      = data.scaleway_account_project.default.id
   public_ssh_key  = file("~/.ssh/scaleway_vm_pangolin.pub")
 
+  security_group_rules = [
+    # SSH
+    {
+      protocol = "TCP"
+      port     = 22
+      ip_range = "::/0"
+    },
+    # HTTP
+    {
+      protocol = "TCP"
+      port     = "80"
+      ip_range = "::/0"
+    },
+    # HTTPS
+    {
+      protocol = "TCP"
+      port     = "443"
+      ip_range = "::/0"
+    },
+    # WireGuard
+    {
+      protocol = "UDP"
+      port     = "51820"
+      ip_range = "::/0"
+    }
+  ]
+
   tags = ["pangolin"]
 }
