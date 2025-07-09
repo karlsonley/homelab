@@ -3,7 +3,7 @@ data "scaleway_account_project" "default" {
 }
 
 module "pangolin_compute_001" {
-  source = "./modules/scaleway-secure-ipv6-compute"
+  source = "./modules/scaleway-secure-compute"
 
   name            = "pangolin"
   sequence_number = "001"
@@ -17,11 +17,21 @@ module "pangolin_compute_001" {
       port     = 22
       ip_range = "::/0"
     },
+    {
+      protocol = "TCP"
+      port     = 22
+      ip_range = "0.0.0.0/0"
+    },
     # HTTP
     {
       protocol = "TCP"
       port     = "80"
       ip_range = "::/0"
+    },
+    {
+      protocol = "TCP"
+      port     = "80"
+      ip_range = "0.0.0.0/0"
     },
     # HTTPS
     {
@@ -29,12 +39,22 @@ module "pangolin_compute_001" {
       port     = "443"
       ip_range = "::/0"
     },
+    {
+      protocol = "TCP"
+      port     = "443"
+      ip_range = "0.0.0.0/0"
+    },
     # WireGuard
     {
       protocol = "UDP"
       port     = "51820"
       ip_range = "::/0"
-    }
+    },
+    {
+      protocol = "UDP"
+      port     = "51820"
+      ip_range = "0.0.0.0/0"
+    },
   ]
 
   tags = ["pangolin"]

@@ -3,6 +3,11 @@ resource "scaleway_instance_ip" "ipv6" {
   type       = "routed_ipv6"
 }
 
+resource "scaleway_instance_ip" "ipv4" {
+  project_id = var.project_id
+  type       = "routed_ipv4"
+}
+
 resource "scaleway_instance_security_group" "this" {
   name                    = join("-", ["isg", var.name, var.sequence_number])
   project_id              = var.project_id
@@ -39,7 +44,7 @@ resource "scaleway_instance_server" "this" {
   tags       = var.tags
 
   admin_password_encryption_ssh_key_id = scaleway_iam_ssh_key.this.id
-  ip_id                                = scaleway_instance_ip.ipv6.id
+  ip_ids                               = [scaleway_instance_ip.ipv6.id, scaleway_instance_ip.ipv4.id]
   security_group_id                    = scaleway_instance_security_group.this.id
 
   root_volume {
