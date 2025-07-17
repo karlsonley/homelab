@@ -2,6 +2,10 @@ data "scaleway_account_project" "default" {
   name = "default"
 }
 
+data "http" "ipv4" {
+  url = "https://ipv4.icanhazip.com"
+}
+
 module "pangolin_compute_001" {
   source = "./modules/scaleway-secure-compute"
 
@@ -15,41 +19,21 @@ module "pangolin_compute_001" {
     {
       protocol = "TCP"
       port     = 22
-      ip_range = "::/0"
-    },
-    {
-      protocol = "TCP"
-      port     = 22
-      ip_range = "0.0.0.0/0"
+      ip_range = "${chomp(data.http.ipv4.body)}/32"
     },
     # HTTP
     {
       protocol = "TCP"
       port     = "80"
-      ip_range = "::/0"
-    },
-    {
-      protocol = "TCP"
-      port     = "80"
-      ip_range = "0.0.0.0/0"
+      ip_range = "${chomp(data.http.ipv4.body)}/32"
     },
     # HTTPS
-    {
-      protocol = "TCP"
-      port     = "443"
-      ip_range = "::/0"
-    },
     {
       protocol = "TCP"
       port     = "443"
       ip_range = "0.0.0.0/0"
     },
     # WireGuard
-    {
-      protocol = "UDP"
-      port     = "51820"
-      ip_range = "::/0"
-    },
     {
       protocol = "UDP"
       port     = "51820"
