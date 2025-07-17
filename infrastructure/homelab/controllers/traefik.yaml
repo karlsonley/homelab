@@ -1,0 +1,67 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traefik
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: traefik
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://traefik.github.io/charts
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: certificate
+  namespace: traefik
+spec:
+    refreshInterval: 1h
+    secretStoreRef:
+        name: scaleway-secret-manager
+        kind: ClusterSecretStore
+    target:
+      name: selfsigned-tls
+      template:
+        type: kubernetes.io/tls
+        data:
+          tls.crt: "{{ .selfsigned_tls_crt }}"
+          tls.key: "{{ .selfsigned_tls_key }}"
+    data:
+    - secretKey: selfsigned_tls_crt
+      remoteRef:
+        key: name:traefik-self-signed-tls-crt
+        version: latest_enabled
+    - secretKey: selfsigned_tls_key
+      remoteRef:
+        key: name:traefik-self-signed-tls-key
+        version: latest_enabled
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: traefik
+  namespace: flux-system
+  annotations:
+    metallb.io/loadBalancerIPs: 10.0.2.110
+spec:
+  releaseName: traefik
+  targetNamespace: traefik
+  interval: 30m
+  chart:
+    spec:
+      chart: traefik
+      version: 36.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+      interval: 5m
+  values:
+    # deployment:
+    #   kind: DaemonSet
+    ingressRoute:
+      dashboard:
+        enabled: true
