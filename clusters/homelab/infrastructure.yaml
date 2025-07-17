@@ -11,7 +11,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/controllers
+  path: ./infrastructure/homelab/controllers
   prune: true
   wait: true
 ---
@@ -29,7 +29,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/crds
+  path: ./infrastructure/homelab/crds
   prune: true
   wait: true
 ---
@@ -40,13 +40,13 @@ metadata:
   namespace: flux-system
 spec:
   dependsOn:
-    - name: infrastructure-controllers
+    - name: infrastructure-crds
   interval: 1h
   retryInterval: 1m
   timeout: 5m
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/crs
+  path: ./infrastructure/homelab/crs
   prune: true
   wait: true
