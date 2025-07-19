@@ -33,12 +33,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: metallb
-      interval: 30m
-  install:
-    remediation:
-      retries: 3
-  upgrade:
-    remediation:
-      retries: 3
-  test:
-    enable: true
+      interval: 5m
+  values:
+    speaker:
+      ignoreExcludeLB: true

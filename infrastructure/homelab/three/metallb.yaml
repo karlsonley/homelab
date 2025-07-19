@@ -2,17 +2,17 @@
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: metallb-ap
+  name: pool
   namespace: metallb
 spec:
   addresses:
-    - 10.0.2.110-10.0.2.200
+    - 10.0.2.200-10.0.2.210
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
-  name: metallb-l2
+  name: advertisement
   namespace: metallb
 spec:
   ipAddressPools:
-    - metallb-ap
+    - pool

@@ -19,26 +19,55 @@ metadata:
   name: certificate
   namespace: traefik
 spec:
-    refreshInterval: 1h
-    secretStoreRef:
-        name: scaleway-secret-manager
-        kind: ClusterSecretStore
-    target:
-      name: selfsigned-tls
-      template:
-        type: kubernetes.io/tls
-        data:
-          tls.crt: "{{ .selfsigned_tls_crt }}"
-          tls.key: "{{ .selfsigned_tls_key }}"
-    data:
-    - secretKey: selfsigned_tls_crt
-      remoteRef:
-        key: name:traefik-self-signed-tls-crt
-        version: latest_enabled
-    - secretKey: selfsigned_tls_key
-      remoteRef:
-        key: name:traefik-self-signed-tls-key
-        version: latest_enabled
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: selfsigned-tls
+    template:
+      type: kubernetes.io/tls
+      data:
+        tls.crt: "{{ .selfsigned_tls_crt }}"
+        tls.key: "{{ .selfsigned_tls_key }}"
+  data:
+  - secretKey: selfsigned_tls_crt
+    remoteRef:
+      key: name:traefik-self-signed-tls-crt
+      version: latest_enabled
+  - secretKey: selfsigned_tls_key
+    remoteRef:
+      key: name:traefik-self-signed-tls-key
+      version: latest_enabled
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: dashboard-admin
+  namespace: traefik
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: dashboard-admin
+    template:
+      type: kubernetes.io/basic-auth
+      data:
+        username: "{{ .username }}"
+        password: "{{ .password }}"
+  data:
+  - secretKey: username
+    remoteRef:
+      key: name:traefik-dashboard-admin
+      property: username
+      version: latest_enabled
+  - secretKey: password
+    remoteRef:
+      key: name:traefik-dashboard-admin
+      property: password
+      version: latest_enabled
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -46,7 +75,7 @@ metadata:
   name: traefik
   namespace: flux-system
   annotations:
-    metallb.io/loadBalancerIPs: 10.0.2.110
+    metallb.io/loadBalancerIPs: 10.0.2.200
 spec:
   releaseName: traefik
   targetNamespace: traefik
@@ -60,8 +89,27 @@ spec:
         name: traefik
       interval: 5m
   values:
-    # deployment:
-    #   kind: DaemonSet
+    deployment:
+      kind: DaemonSet
+    ports:
+      web:
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
+            permanent: true
     ingressRoute:
       dashboard:
         enabled: true
+        matchRule: Host(`traefik.home.lab`)
+        entryPoints: ["websecure"]
+        middlewares:
+          - name: traefik-dashboard-auth
+    extraObjects:
+      - apiVersion: traefik.io/v1alpha1
+        kind: Middleware
+        metadata:
+          name: traefik-dashboard-auth
+        spec:
+          basicAuth:
+            secret: dashboard-admin
