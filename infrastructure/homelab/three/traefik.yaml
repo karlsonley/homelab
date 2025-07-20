@@ -16,7 +16,7 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: certificate
+  name: cloudflare-api-token
   namespace: traefik
 spec:
   refreshInterval: 1h
@@ -24,21 +24,49 @@ spec:
     name: scaleway-secret-manager
     kind: ClusterSecretStore
   target:
-    name: selfsigned-tls
+    name: cloudflare-api-token
     template:
-      type: kubernetes.io/tls
       data:
-        tls.crt: "{{ .selfsigned_tls_crt }}"
-        tls.key: "{{ .selfsigned_tls_key }}"
+        api-token: "{{ .cloudflare_api_token }}"
   data:
-  - secretKey: selfsigned_tls_crt
+  - secretKey: cloudflare_api_token
     remoteRef:
-      key: name:traefik-self-signed-tls-crt
+      key: name:cloudflare-api-token
       version: latest_enabled
-  - secretKey: selfsigned_tls_key
-    remoteRef:
-      key: name:traefik-self-signed-tls-key
-      version: latest_enabled
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt
+  namespace: traefik
+spec:
+  acme:
+    email: homelabdns01issuer.stunt134@passinbox.com
+    profile: tlsserver
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: acme
+    solvers:
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token
+            key: api-token
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard
+  namespace: traefik
+spec:
+  secretName: domain-tls
+  privateKey:
+    rotationPolicy: Always
+  dnsNames:
+    - "*.sonley.dev"
+  issuerRef:
+    name: letsencrypt
+    kind: Issuer
 ---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -98,10 +126,14 @@ spec:
             to: websecure
             scheme: https
             permanent: true
+    tlsStore:
+      default:
+        defaultCertificate:
+          secretName: domain-tls
     ingressRoute:
       dashboard:
         enabled: true
-        matchRule: Host(`traefik.home.lab`)
+        matchRule: Host(`traefik.sonley.dev`)
         entryPoints: ["websecure"]
         middlewares:
           - name: traefik-dashboard-auth
