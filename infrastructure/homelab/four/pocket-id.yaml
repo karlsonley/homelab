@@ -1,0 +1,133 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pocket-id
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: pocket-id
+    template:
+      type: Opaque
+      data:
+        encryption_key: "{{ .encryption_key}}"
+  data:
+  - secretKey: encryption_key
+    remoteRef:
+      key: name:pocket-id
+      property: encryption_key
+      version: latest_enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pocket-id
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pocket-id
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pocket-id
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 2000
+        fsGroup: 2000
+      containers:
+      - env:
+          - name: APP_URL
+            value: "https://pocket-id.sonley.dev"
+          - name: TRUST_PROXY
+            value: "true"
+          - name: PUID
+            value: "1000"
+          - name: PGID
+            value: "1000"
+          - name: ENCRYPTION_KEY
+            valueFrom:
+              secretKeyRef:
+                name: pocket-id
+                key: encryption_key
+        image: ghcr.io/pocket-id/pocket-id:v1
+        name: pocket-id
+        ports:
+          - containerPort: 1411
+        volumeMounts:
+          - mountPath: /app/data
+            name: pocket-id
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: false
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+      restartPolicy: Always
+      volumes:
+        - name: pocket-id
+          persistentVolumeClaim:
+            claimName: pocket-id
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: pocket-id
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  ports:
+    - name: "1411"
+      port: 1411
+      targetPort: 1411
+  selector:
+    app: pocket-id
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`pocket-id.sonley.dev`)
+    services:
+    - kind: Service
+      name: pocket-id
+      namespace: pocket-id
+      port: 1411
