@@ -32,16 +32,43 @@ spec:
         kind: HelmRepository
         name: prometheus-community
       interval: 5m
-  values:
-    grafana:
-      ingress:
-        enabled: true
-        ingressClassName: traefik
-        hosts:
-          - "grafana.sonley.dev"
-    alertmanager:
-      ingress:
-        enabled: true
-        ingressClassName: traefik
-        hosts:
-          - "alertmanager.sonley.dev"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`grafana.sonley.dev`)
+    services:
+    - kind: Service
+      name: kube-prometheus-stack-grafana
+      namespace: monitoring
+      port: 80
+    middlewares:
+      - name: oidc-auth
+        namespace: traefik
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: alertmanager
+  namespace: monitoring
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`alertmanager.sonley.dev`)
+    services:
+    - kind: Service
+      name: kube-prometheus-stack-alertmanager
+      namespace: monitoring
+      port: 9093
+    middlewares:
+      - name: oidc-auth
+        namespace: traefik
