@@ -150,3 +150,6 @@ spec:
         traefik-oidc-auth:
           moduleName: "github.com/sevensolutions/traefik-oidc-auth"
           version: "v0.13.0"
+    providers:
+      kubernetesCRD:
+        allowCrossNamespace: true
