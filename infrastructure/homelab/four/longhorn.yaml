@@ -49,3 +49,6 @@ spec:
       name: longhorn-frontend
       namespace: longhorn
       port: 80
+    middlewares:
+      - name: oidc-auth
+        namespace: traefik

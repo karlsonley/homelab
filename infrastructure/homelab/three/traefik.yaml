@@ -153,3 +153,57 @@ spec:
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pocket-id
+  namespace: traefik
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: pocket-id
+    template:
+      type: Opaque
+      data:
+        oidc_encryption_key: "{{ .oidc_encryption_key}}"
+        oidc_client_id: "{{ .oidc_client_id}}"
+        oidc_client_secret: "{{ .oidc_client_secret}}"
+  data:
+  - secretKey: oidc_encryption_key
+    remoteRef:
+      key: name:pocket-id
+      property: oidc_encryption_key
+      version: latest_enabled
+  - secretKey: oidc_client_id
+    remoteRef:
+      key: name:pocket-id
+      property: oidc_client_id
+      version: latest_enabled
+  - secretKey: oidc_client_secret
+    remoteRef:
+      key: name:pocket-id
+      property: oidc_client_secret
+      version: latest_enabled
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: oidc-auth
+  namespace: traefik
+spec:
+  plugin:
+    traefik-oidc-auth:
+      Secret: "urn:k8s:secret:pocket-id:oidc_encryption_key"
+      Provider:
+        ClientId: "urn:k8s:secret:pocket-id:oidc_client_id"
+        ClientSecret: "urn:k8s:secret:pocket-id:oidc_client_secret"
+        Url: https://pocket-id.sonley.dev
+      Scopes:
+        - openid
+        - profile
+        - email
+        - groups
