@@ -32,6 +32,11 @@ spec:
         kind: HelmRepository
         name: prometheus-community
       interval: 5m
+  values:
+    grafana:
+      grafana.ini:
+        panels:
+          disable_sanitize_html: true
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
