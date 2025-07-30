@@ -1,0 +1,164 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blocky
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+  namespace: blocky
+data:
+  config: |
+    upstreams:
+      groups:
+        default:
+          - 1.1.1.1
+          - 1.0.0.1
+          - 2606:4700:4700::1111
+          - 2606:4700:4700::1001
+    blocking:
+      denylists:
+        default:
+          - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/wildcard/pro.txt
+          - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+      clientGroupsBlock:
+        default:
+          - default
+    customDNS:
+      customTTL: 1h
+      mapping:
+        sonley.dev: 10.0.2.200
+    prometheus:
+      enable: true
+      path: /metrics
+    ports:
+      dns: 53
+      http: 4000
+    log:
+      level: info
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: blocky
+  name: blocky
+  namespace: blocky
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: blocky
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: blocky
+    spec:
+      containers:
+        - name: blocky
+          image: spx01/blocky:v0.26.2
+          env:
+            - name: log.level
+              value: "trace"
+          ports:
+          - containerPort: 53
+            name: dns-udp
+            protocol: UDP
+          - containerPort: 53
+            name: dns-tcp
+            protocol: TCP
+          - containerPort: 4000
+            name: http
+            protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: "/app/config.yml"
+              subPath: "config.yml"
+              readOnly: true
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+              add: ["NET_BIND_SERVICE"]
+      restartPolicy: Always
+      volumes:
+        - name: config
+          configMap:
+            name: config
+            items:
+            - key: config
+              path: "config.yml"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    metallb.io/loadBalancerIPs: 10.0.2.201
+  labels:
+    app: blocky
+  name: blocky
+  namespace: blocky
+spec:
+  type: LoadBalancer
+  ports:
+  - name: dns-udp
+    port: 53
+    protocol: UDP
+    targetPort: 53
+  - name: dns-tcp
+    port: 53
+    protocol: TCP
+    targetPort: 53
+  - name: http
+    port: 4000
+    protocol: TCP
+    targetPort: 4000
+  selector:
+    app: blocky
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: blocky
+  namespace: monitoring
+  labels:
+    app: blocky
+    app.kubernetes.io/name: blocky
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: blocky
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - blocky
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: blocky
+  namespace: blocky
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`blocky.sonley.dev`)
+    services:
+    - kind: Service
+      name: blocky
+      namespace: blocky
+      port: 4000
