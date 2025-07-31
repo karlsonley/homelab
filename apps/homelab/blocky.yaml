@@ -108,6 +108,7 @@ metadata:
   namespace: blocky
 spec:
   type: LoadBalancer
+  externalTrafficPolicy: Local
   ports:
   - name: dns-udp
     port: 53
