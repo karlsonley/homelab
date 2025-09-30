@@ -78,11 +78,11 @@ spec:
   - kind: Secret
     name: grafana-oidc
     valuesKey: oidc_client_id
-    targetPath: grafana.grafana.ini.auth.generic_oauth.client_id
+    targetPath: grafana.grafana\.ini.auth\.generic_oauth.client_id
   - kind: Secret
     name: grafana-oidc
     valuesKey: oidc_client_secret
-    targetPath: grafana.grafana.ini.auth.generic_oauth.client_secret
+    targetPath: grafana.grafana\.ini.auth\.generic_oauth.client_secret
   values:
     grafana:
       grafana.ini:
@@ -90,6 +90,9 @@ spec:
           disable_sanitize_html: true
         server:
           root_url: https://grafana.sonley.dev
+        auth:
+          disable_login_form: true
+          oauth_auto_login: true
         auth.generic_oauth:
           enabled: true
           name: Pocket ID
