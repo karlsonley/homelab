@@ -22,15 +22,15 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: pocket-id
-  namespace: monitoring
+  name: grafana-oidc
+  namespace: flux-system
 spec:
   refreshInterval: 1h
   secretStoreRef:
     name: scaleway-secret-manager
     kind: ClusterSecretStore
   target:
-    name: pocket-id
+    name: grafana-oidc
     template:
       type: Opaque
       data:
@@ -76,11 +76,11 @@ spec:
       interval: 5m
   valuesFrom:
   - kind: Secret
-    name: monitoring/pocket-id
+    name: grafana-oidc
     valuesKey: oidc_client_id
     targetPath: grafana.grafana.ini.auth.generic_oauth.client_id
   - kind: Secret
-    name: monitoring/pocket-id
+    name: grafana-oidc
     valuesKey: oidc_client_secret
     targetPath: grafana.grafana.ini.auth.generic_oauth.client_secret
   values:
