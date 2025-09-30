@@ -4,6 +4,53 @@ kind: Namespace
 metadata:
   name: blocky
 ---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: blocky
+  namespace: flux-system
+spec:
+  image: spx01/blocky
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: blocky
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: blocky
+  policy:
+    semver:
+      range: ">=0.26.0 <1.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: blocky
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(blocky): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab
+    strategy: Setters
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -60,7 +107,7 @@ spec:
     spec:
       containers:
         - name: blocky
-          image: spx01/blocky:v0.26.2
+          image: spx01/blocky:v0.26.2 # {"$imagepolicy": "flux-system:blocky"}
           env:
             - name: log.level
               value: "trace"
