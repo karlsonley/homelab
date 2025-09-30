@@ -5,6 +5,6 @@ namespace: monitoring
 configMapGenerator:
 - name: grafana-dashboards
   files:
-  - dashboards/*.json
+  - dashboards/blocky.json
   options:
     disableNameSuffixHash: true
