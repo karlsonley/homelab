@@ -74,10 +74,17 @@ spec:
         kind: HelmRepository
         name: prometheus-community
       interval: 5m
+  valuesFrom:
+  - kind: Secret
+    name: pocket-id
+    valuesKey: oidc_client_id
+    targetPath: grafana.grafana.ini.auth.generic_oauth.client_id
+  - kind: Secret
+    name: pocket-id
+    valuesKey: oidc_client_secret
+    targetPath: grafana.grafana.ini.auth.generic_oauth.client_secret
   values:
     grafana:
-      envFromSecrets:
-      - name: pocket-id
       grafana.ini:
         panels:
           disable_sanitize_html: true
@@ -86,8 +93,6 @@ spec:
         auth.generic_oauth:
           enabled: true
           name: Pocket ID
-          client_id: $oidc_client_id
-          client_secret: $oidc_client_secret
           scopes: openid profile email groups
           auth_url: https://pocket-id.sonley.dev/oauth/authorize
           token_url: https://pocket-id.sonley.dev/oauth/token
