@@ -19,6 +19,35 @@ spec:
     kind: GitRepository
     name: flux-system
 ---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pocket-id
+  namespace: monitoring
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: pocket-id
+    template:
+      type: Opaque
+      data:
+        oidc_client_id: "{{ .oidc_client_id}}"
+        oidc_client_secret: "{{ .oidc_client_secret}}"
+  data:
+  - secretKey: oidc_client_id
+    remoteRef:
+      key: name:pocket-id
+      property: oidc_client_id
+      version: latest_enabled
+  - secretKey: oidc_client_secret
+    remoteRef:
+      key: name:pocket-id
+      property: oidc_client_secret
+      version: latest_enabled
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -47,9 +76,25 @@ spec:
       interval: 5m
   values:
     grafana:
+      envFromSecrets:
+      - name: pocket-id
       grafana.ini:
         panels:
           disable_sanitize_html: true
+        server:
+          root_url: https://grafana.sonley.dev
+        auth.generic_oauth:
+          enabled: true
+          name: Pocket ID
+          client_id: $oidc_client_id
+          client_secret: $oidc_client_secret
+          scopes: openid profile email groups
+          auth_url: https://pocket-id.sonley.dev/oauth/authorize
+          token_url: https://pocket-id.sonley.dev/oauth/token
+          api_url: https://pocket-id.sonley.dev/oauth/userinfo
+          use_pkce: true
+          allow_sign_up: true
+          role_attribute_path: contains(groups[*], 'Admins') && 'Admin' || contains(groups[*], 'Users') && 'Editor' || 'Viewer'
       dashboardProviders:
         dashboardproviders.yaml:
           apiVersion: 1
@@ -81,9 +126,6 @@ spec:
       name: kube-prometheus-stack-grafana
       namespace: monitoring
       port: 80
-    middlewares:
-      - name: oidc-auth
-        namespace: traefik
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
