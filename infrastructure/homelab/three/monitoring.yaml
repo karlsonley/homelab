@@ -85,6 +85,8 @@ spec:
     targetPath: grafana.grafana\.ini.auth\.generic_oauth.client_secret
   values:
     grafana:
+      defaultDashboardsEnabled: false
+      assertNoLeakedSecrets: false
       grafana.ini:
         panels:
           disable_sanitize_html: true
