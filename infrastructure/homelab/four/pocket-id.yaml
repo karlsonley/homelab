@@ -4,6 +4,53 @@ kind: Namespace
 metadata:
   name: pocket-id
 ---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: pocket-id
+  namespace: flux-system
+spec:
+  image: ghcr.io/pocket-id/pocket-id
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: pocket-id
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: pocket-id
+  policy:
+    semver:
+      range: ">=1.0.0 <2.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: pocket-id
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(pocket-id): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./infrastructure/homelab/four
+    strategy: Setters
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -78,7 +125,7 @@ spec:
               secretKeyRef:
                 name: pocket-id
                 key: encryption_key
-        image: ghcr.io/pocket-id/pocket-id:v1
+        image: ghcr.io/pocket-id/pocket-id:v1 # {"$imagepolicy": "flux-system:pocket-id"}
         name: pocket-id
         ports:
           - containerPort: 1411
