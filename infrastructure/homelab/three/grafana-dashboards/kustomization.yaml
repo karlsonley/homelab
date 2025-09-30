@@ -6,5 +6,6 @@ configMapGenerator:
 - name: grafana-dashboards
   files:
   - dashboards/blocky.json
+  - dashboards/kubernetes-monitoring-dashboard.json
   options:
     disableNameSuffixHash: true

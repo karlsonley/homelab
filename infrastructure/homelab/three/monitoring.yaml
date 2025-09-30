@@ -92,6 +92,8 @@ spec:
           disable_sanitize_html: true
         server:
           root_url: https://grafana.sonley.dev
+        dashboards:
+          default_home_dashboard_path: /var/lib/grafana/dashboards/default/kubernetes-monitoring-dashboard.json
         auth:
           disable_login_form: true
           oauth_auto_login: true
