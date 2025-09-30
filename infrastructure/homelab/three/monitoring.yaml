@@ -6,6 +6,19 @@ metadata:
   labels:
     pod-security.kubernetes.io/enforce: privileged
 ---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: grafana-dashboards
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./infrastructure/homelab/three/grafana-dashboards
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -37,6 +50,20 @@ spec:
       grafana.ini:
         panels:
           disable_sanitize_html: true
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+      dashboardsConfigMaps:
+        default: "grafana-dashboards"
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
