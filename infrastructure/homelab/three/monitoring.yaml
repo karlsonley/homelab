@@ -76,15 +76,13 @@ spec:
       interval: 5m
   valuesFrom:
   - kind: Secret
-    name: pocket-id
+    name: monitoring/pocket-id
     valuesKey: oidc_client_id
     targetPath: grafana.grafana.ini.auth.generic_oauth.client_id
-    targetNamespace: monitoring
   - kind: Secret
-    name: pocket-id
+    name: monitoring/pocket-id
     valuesKey: oidc_client_secret
     targetPath: grafana.grafana.ini.auth.generic_oauth.client_secret
-    targetNamespace: monitoring
   values:
     grafana:
       grafana.ini:
