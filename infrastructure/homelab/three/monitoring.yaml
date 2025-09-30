@@ -106,7 +106,7 @@ spec:
           api_url: https://pocket-id.sonley.dev/api/oidc/userinfo
           use_pkce: true
           allow_sign_up: true
-          role_attribute_path: contains(groups[*], 'Admins') && 'Admin' || contains(groups[*], 'Users') && 'Editor' || 'Viewer'
+          role_attribute_path: contains(groups[*], 'admins') && 'Admin' || contains(groups[*], 'users') && 'Editor' || 'Viewer'
       dashboardProviders:
         dashboardproviders.yaml:
           apiVersion: 1
