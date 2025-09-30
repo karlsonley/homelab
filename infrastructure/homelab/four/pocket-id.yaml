@@ -1,4 +1,3 @@
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -112,26 +111,26 @@ spec:
         fsGroup: 2000
       containers:
       - env:
-          - name: APP_URL
-            value: "https://pocket-id.sonley.dev"
-          - name: TRUST_PROXY
-            value: "true"
-          - name: PUID
-            value: "1000"
-          - name: PGID
-            value: "1000"
-          - name: ENCRYPTION_KEY
-            valueFrom:
-              secretKeyRef:
-                name: pocket-id
-                key: encryption_key
-        image: ghcr.io/pocket-id/pocket-id:v1 # {"$imagepolicy": "flux-system:pocket-id"}
+        - name: APP_URL
+          value: "https://pocket-id.sonley.dev"
+        - name: TRUST_PROXY
+          value: "true"
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pocket-id
+              key: encryption_key
+        image: ghcr.io/pocket-id/pocket-id:v1.11.2 # {"$imagepolicy": "flux-system:pocket-id"}
         name: pocket-id
         ports:
-          - containerPort: 1411
+        - containerPort: 1411
         volumeMounts:
-          - mountPath: /app/data
-            name: pocket-id
+        - mountPath: /app/data
+          name: pocket-id
         securityContext:
           allowPrivilegeEscalation: false
           runAsNonRoot: false
@@ -139,17 +138,16 @@ spec:
             type: RuntimeDefault
           capabilities:
             drop:
-              - ALL
+            - ALL
       restartPolicy: Always
       volumes:
-        - name: pocket-id
-          persistentVolumeClaim:
-            claimName: pocket-id
+      - name: pocket-id
+        persistentVolumeClaim:
+          claimName: pocket-id
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
   labels:
     app: pocket-id
   name: pocket-id
@@ -171,10 +169,10 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - kind: Rule
-    match: Host(`pocket-id.sonley.dev`)
-    services:
-    - kind: Service
-      name: pocket-id
-      namespace: pocket-id
-      port: 1411
+    - kind: Rule
+      match: Host(`pocket-id.sonley.dev`)
+      services:
+        - kind: Service
+          name: pocket-id
+          namespace: pocket-id
+          port: 1411
