@@ -99,9 +99,9 @@ spec:
           enabled: true
           name: Pocket ID
           scopes: openid profile email groups
-          auth_url: https://pocket-id.sonley.dev/oauth/authorize
-          token_url: https://pocket-id.sonley.dev/oauth/token
-          api_url: https://pocket-id.sonley.dev/oauth/userinfo
+          auth_url: https://pocket-id.sonley.dev/authorize
+          token_url: https://pocket-id.sonley.dev/api/oidc/token
+          api_url: https://pocket-id.sonley.dev/api/oidc/userinfo
           use_pkce: true
           allow_sign_up: true
           role_attribute_path: contains(groups[*], 'Admins') && 'Admin' || contains(groups[*], 'Users') && 'Editor' || 'Viewer'
