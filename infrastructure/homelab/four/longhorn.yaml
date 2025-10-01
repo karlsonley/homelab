@@ -32,6 +32,12 @@ spec:
         kind: HelmRepository
         name: longhorn
       interval: 5m
+  values:
+    metrics:
+      serviceMonitor:
+        enabled: true
+        labels:
+          release: kube-prometheus-stack
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute

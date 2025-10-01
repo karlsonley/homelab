@@ -97,6 +97,17 @@ spec:
             to: websecure
             scheme: https
             permanent: true
+      metrics:
+        port: 9100
+        expose:
+          default: true
+        exposedPort: 9100
+    metrics:
+      prometheus:
+        serviceMonitor:
+          enabled: true
+          labels:
+            release: kube-prometheus-stack
     tlsStore:
       default:
         defaultCertificate:

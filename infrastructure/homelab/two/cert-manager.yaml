@@ -34,3 +34,10 @@ spec:
   values:
     crds:
       enabled: true
+    prometheus:
+      enabled: true
+      servicemonitor:
+        enabled: true
+        prometheusInstance: default
+        labels:
+          release: kube-prometheus-stack

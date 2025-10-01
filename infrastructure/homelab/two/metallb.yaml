@@ -37,3 +37,10 @@ spec:
   values:
     speaker:
       ignoreExcludeLB: true
+    prometheus:
+      serviceMonitor:
+        enabled: true
+        labels:
+          release: kube-prometheus-stack
+      prometheusRule:
+        enabled: false
