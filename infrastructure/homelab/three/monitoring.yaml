@@ -48,6 +48,29 @@ spec:
       property: oidc_client_secret
       version: latest_enabled
 ---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: alertmanager-discord
+  namespace: flux-system
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: alertmanager-discord
+    template:
+      type: Opaque
+      data:
+        webhook_url: "{{ .webhook_url}}"
+  data:
+  - secretKey: webhook_url
+    remoteRef:
+      key: name:alertmanager
+      property: discord_webhook_url
+      version: latest_enabled
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -83,7 +106,33 @@ spec:
     name: grafana-oidc
     valuesKey: oidc_client_secret
     targetPath: grafana.grafana\.ini.auth\.generic_oauth.client_secret
+  - kind: Secret
+    name: alertmanager-discord
+    valuesKey: webhook_url
+    targetPath: alertmanager.config.receivers[0].discord_configs[0].webhook_url
   values:
+    alertmanager:
+      config:
+        route:
+          receiver: discord
+          group_by: ['alertname', 'cluster', 'service']
+          group_wait: 10s
+          group_interval: 1m
+          repeat_interval: 5m
+          routes:
+          - receiver: "null"
+            matchers:
+            - alertname = "Watchdog"
+          - receiver: discord
+            continue: true
+        receivers:
+        - name: discord
+          discord_configs:
+          - title: '{{ template "discord.default.title" . }}'
+            message: '{{ template "discord.default.message" . }}'
+        - name: "null"
+        templates:
+        - '/etc/alertmanager/config/*.tmpl'
     grafana:
       defaultDashboardsEnabled: false
       assertNoLeakedSecrets: false
