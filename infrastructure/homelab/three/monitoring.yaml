@@ -128,8 +128,19 @@ spec:
         receivers:
         - name: discord
           discord_configs:
-          - title: '{{ template "discord.default.title" . }}'
-            message: '{{ template "discord.default.message" . }}'
+          - title: |
+              [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+            message: |
+              {{ range .Alerts }}
+              **Alert:** {{ .Labels.alertname }}
+              **Severity:** {{ .Labels.severity }}
+              **Summary:** {{ .Annotations.summary }}
+              **Description:** {{ .Annotations.description }}
+              {{ end }}
+            color: |
+              {{ if eq .Status "firing" }}
+                {{ if eq .CommonLabels.severity "critical" }}15158332{{ else if eq .CommonLabels.severity "warning" }}15105570{{ else }}3447003{{ end }}
+              {{ else }}3066993{{ end }}
         - name: "null"
         templates:
         - '/etc/alertmanager/config/*.tmpl'
