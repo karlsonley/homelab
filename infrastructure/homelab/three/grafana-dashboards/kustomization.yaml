@@ -6,6 +6,11 @@ configMapGenerator:
 - name: grafana-dashboards
   files:
   - dashboards/blocky.json
+  - dashboards/cert-manager.json
+  - dashboards/external-secrets.json
   - dashboards/kubernetes-monitoring-dashboard.json
+  - dashboards/longhorn.json
+  - dashboards/metallb.json
+  - dashboards/traefik.json
   options:
     disableNameSuffixHash: true
