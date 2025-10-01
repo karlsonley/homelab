@@ -112,6 +112,8 @@ spec:
     targetPath: alertmanager.config.receivers[0].discord_configs[0].webhook_url
   values:
     alertmanager:
+      alertmanagerSpec:
+        replicas: 3
       config:
         route:
           receiver: discord
@@ -150,6 +152,9 @@ spec:
           root_url: https://grafana.sonley.dev
         dashboards:
           default_home_dashboard_path: /var/lib/grafana/dashboards/default/kubernetes-monitoring-dashboard.json
+        date_formats:
+          default_timezone: UTC
+          week_start: monday
         auth:
           disable_login_form: true
           oauth_auto_login: true
