@@ -135,9 +135,24 @@ spec:
             message: |
               {{ range .Alerts }}
               **Alert:** {{ .Labels.alertname }}
+              {{- if .Labels.severity }}
               **Severity:** {{ .Labels.severity }}
+              {{- end }}
+              {{- if .Labels.name }}
+              **Resource:** {{ .Labels.name }} ({{ .Labels.kind }})
+              {{- end }}
+              {{- if .Labels.namespace }}
+              **Namespace:** {{ .Labels.namespace }}
+              {{- end }}
+              {{- if .Annotations.summary }}
               **Summary:** {{ .Annotations.summary }}
+              {{- end }}
+              {{- if .Annotations.message }}
+              **Message:** {{ .Annotations.message }}
+              {{- end }}
+              {{- if .Annotations.description }}
               **Description:** {{ .Annotations.description }}
+              {{- end }}
               {{ end }}
         - name: "null"
         templates:
