@@ -26,6 +26,8 @@ spec:
         name: metrics-server
       interval: 5m
   values:
+    args:
+      - --kubelet-preferred-address-types=Hostname,InternalDNS,InternalIP,ExternalIP
     metrics:
       enabled: true
     serviceMonitor:
