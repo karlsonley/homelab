@@ -160,6 +160,14 @@ spec:
     grafana:
       defaultDashboardsEnabled: false
       assertNoLeakedSecrets: false
+      additionalDataSources:
+      - name: Loki
+        type: loki
+        url: http://loki:3100
+        access: proxy
+        isDefault: false
+        jsonData:
+          maxLines: 1000
       grafana.ini:
         panels:
           disable_sanitize_html: true
