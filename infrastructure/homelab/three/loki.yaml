@@ -33,6 +33,11 @@ spec:
         replication_factor: 1
       storage:
         type: filesystem
+        retention_period: 7d
+      limits_config:
+        retention_period: 7d
+      compactor:
+        retention_enabled: true
       schemaConfig:
         configs:
           - from: "2024-04-01"
@@ -58,6 +63,9 @@ spec:
       enabled: false
     test:
       enabled: false
+    lokiCanary:
+      extraArgs:
+        - -interval=60s
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
