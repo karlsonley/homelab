@@ -99,7 +99,20 @@ spec:
 
           loki.source.kubernetes "pods" {
             targets    = discovery.kubernetes.pods.targets
+            forward_to = [loki.process.add_labels.receiver]
+          }
+
+          loki.process "add_labels" {
             forward_to = [loki.write.default.receiver]
+
+            stage.labels {
+              values = {
+                namespace = "__meta_kubernetes_namespace",
+                pod       = "__meta_kubernetes_pod_name",
+                container = "__meta_kubernetes_pod_container_name",
+                node      = "__meta_kubernetes_pod_node_name",
+              }
+            }
           }
 
           loki.write "default" {
