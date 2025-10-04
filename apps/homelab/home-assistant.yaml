@@ -65,6 +65,3 @@ spec:
       name: home-assistant
       namespace: home-assistant
       port: 8080
-    middlewares:
-      - name: oidc-auth
-        namespace: traefik
