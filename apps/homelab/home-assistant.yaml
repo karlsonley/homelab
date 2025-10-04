@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: home-assistant
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: home-assistant
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://pajikos.github.io/home-assistant-helm-chart/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: flux-system
+spec:
+  releaseName: home-assistant
+  targetNamespace: home-assistant
+  interval: 30m
+  chart:
+    spec:
+      chart: home-assistant
+      version: ">=0.0.0 <1.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: home-assistant
+      interval: 5m
+  values:
+    ingress:
+      external: true
+    serviceMonitor:
+      enabled: true
+      scrapeInterval: 30s
+      labels:
+        release: kube-prometheus-stack
+    configuration:
+      enabled: true
+      forceInit: true
+      trusted_proxies:
+        - 10.244.0.0/16
+    persistence:
+      enabled: true
+      size: 15Gi
+      storageClass: longhorn
+      accessMode: ReadWriteOnce
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`home-assistant.sonley.dev`)
+    services:
+    - kind: Service
+      name: home-assistant
+      namespace: home-assistant
+      port: 8080
+    middlewares:
+      - name: oidc-auth
+        namespace: traefik
