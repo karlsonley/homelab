@@ -106,7 +106,7 @@ spec:
       prometheus:
         serviceMonitor:
           enabled: true
-          labels:
+          additionalLabels:
             release: kube-prometheus-stack
     tlsStore:
       default:
