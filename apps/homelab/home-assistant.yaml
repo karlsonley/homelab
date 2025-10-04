@@ -43,6 +43,7 @@ spec:
       forceInit: true
       trusted_proxies:
         - 10.244.0.0/16
+      prometheus: {}
     persistence:
       enabled: true
       size: 15Gi
