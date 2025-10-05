@@ -57,7 +57,8 @@ spec:
       labels:
         release: kube-prometheus-stack
     configuration:
-      enabled: false
+      enabled: true
+      forceInit: true
     persistence:
       enabled: true
       size: 15Gi
