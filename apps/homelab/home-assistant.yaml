@@ -10,7 +10,7 @@ metadata:
   name: home-assistant-config
   namespace: home-assistant
 spec:
-  refreshInterval: 1h
+  refreshInterval: 15m
   secretStoreRef:
     kind: ClusterSecretStore
     name: scaleway-secret-manager
@@ -49,6 +49,8 @@ spec:
         name: home-assistant
       interval: 5m
   values:
+    podAnnotations:
+      secret.reloader.stakater.com/reload: "home-assistant-config"
     ingress:
       external: true
     serviceMonitor:
