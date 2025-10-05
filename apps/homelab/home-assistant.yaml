@@ -8,7 +8,7 @@ apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: home-assistant-sensors
-  namespace: home-assistant
+  namespace: flux-system
 spec:
   refreshInterval: 1h
   secretStoreRef:
