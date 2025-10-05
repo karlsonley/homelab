@@ -7,7 +7,7 @@ metadata:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: home-assistant-sensors
+  name: home-assistant-config
   namespace: flux-system
 spec:
   refreshInterval: 1h
@@ -15,11 +15,11 @@ spec:
     kind: ClusterSecretStore
     name: scaleway-secret-manager
   target:
-    name: home-assistant-sensors
+    name: home-assistant-config
   data:
-  - secretKey: sensor.yaml
+  - secretKey: configuration.yaml
     remoteRef:
-      key: name:home-assistant-sensors
+      key: name:home-assistant-config
       version: latest_enabled
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
@@ -48,11 +48,6 @@ spec:
         kind: HelmRepository
         name: home-assistant
       interval: 5m
-  valuesFrom:
-  - kind: Secret
-    name: home-assistant-sensors
-    valuesKey: sensor.yaml
-    targetPath: configuration.sensor
   values:
     ingress:
       external: true
@@ -62,16 +57,20 @@ spec:
       labels:
         release: kube-prometheus-stack
     configuration:
-      enabled: true
-      forceInit: true
-      trusted_proxies:
-        - 10.244.0.0/16
-      prometheus: {}
+      enabled: false
     persistence:
       enabled: true
       size: 15Gi
       storageClass: longhorn
       accessMode: ReadWriteOnce
+    additionalVolumes:
+    - name: hass-config
+      secret:
+        secretName: home-assistant-config
+    additionalMounts:
+    - name: hass-config
+      mountPath: /config-templates/configuration.yaml
+      subPath: configuration.yaml
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
