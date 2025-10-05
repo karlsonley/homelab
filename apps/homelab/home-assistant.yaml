@@ -82,7 +82,7 @@ spec:
       volumeMounts:
       - name: hass-config
         mountPath: /tmp/config-template
-      - name: home-assistant-pvc
+      - name: home-assistant
         mountPath: /config
     additionalVolumes:
     - name: hass-config
