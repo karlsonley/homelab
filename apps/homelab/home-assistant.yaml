@@ -4,7 +4,7 @@ kind: Namespace
 metadata:
   name: home-assistant
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: home-assistant-sensors
