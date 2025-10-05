@@ -76,7 +76,7 @@ spec:
         else
           echo "Existing configuration found, merging with secret..."
           yq eval-all '. as $item ireduce ({}; . * $item)' /config/configuration.yaml /tmp/config-template/configuration.yaml > /tmp/merged.yaml
-          cp /tmp/merged.yaml /config/configuration.yaml
+          mv /tmp/merged.yaml /config/configuration.yaml
           echo "Configuration merged successfully"
         fi
       volumeMounts:
