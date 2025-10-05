@@ -19,7 +19,8 @@ spec:
   data:
   - secretKey: sensor.yaml
     remoteRef:
-      key: home-assistant-sensors
+      key: name:home-assistant-sensors
+      version: latest_enabled
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
