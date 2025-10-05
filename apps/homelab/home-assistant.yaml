@@ -66,6 +66,9 @@ spec:
     initContainers:
     - name: merge-config
       image: mikefarah/yq:4
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
       command:
       - sh
       - -c
