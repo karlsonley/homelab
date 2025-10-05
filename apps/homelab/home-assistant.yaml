@@ -57,21 +57,37 @@ spec:
       labels:
         release: kube-prometheus-stack
     configuration:
-      enabled: true
-      forceInit: true
+      enabled: false
     persistence:
       enabled: true
       size: 15Gi
       storageClass: longhorn
       accessMode: ReadWriteOnce
+    initContainers:
+    - name: merge-config
+      image: mikefarah/yq:4
+      command:
+      - sh
+      - -c
+      - |
+        if [ ! -f /config/configuration.yaml ]; then
+          echo "No existing configuration found, copying from secret..."
+          cp /tmp/config-template/configuration.yaml /config/configuration.yaml
+        else
+          echo "Existing configuration found, merging with secret..."
+          yq eval-all '. as $item ireduce ({}; . * $item)' /config/configuration.yaml /tmp/config-template/configuration.yaml > /tmp/merged.yaml
+          cp /tmp/merged.yaml /config/configuration.yaml
+          echo "Configuration merged successfully"
+        fi
+      volumeMounts:
+      - name: hass-config
+        mountPath: /tmp/config-template
+      - name: home-assistant-pvc
+        mountPath: /config
     additionalVolumes:
     - name: hass-config
       secret:
         secretName: home-assistant-config
-    additionalMounts:
-    - name: hass-config
-      mountPath: /config-templates/configuration.yaml
-      subPath: configuration.yaml
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
