@@ -1,7 +1,0 @@
-plugin: scaleway
-hostnames:
-  - hostname
-tags:
-  - pangolin
-variables:
-  ansible_host: public_ip.address

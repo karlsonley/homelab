@@ -214,3 +214,7 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/ansible,python
 
 .DS_Store
+
+# Claude Code
+.claude
+CLAUDE.md
