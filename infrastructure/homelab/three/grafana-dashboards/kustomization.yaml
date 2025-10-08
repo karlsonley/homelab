@@ -12,5 +12,6 @@ configMapGenerator:
   - dashboards/longhorn.json
   - dashboards/metallb.json
   - dashboards/traefik.json
+  - dashboards/cloudnative-pg.json
   options:
     disableNameSuffixHash: true
