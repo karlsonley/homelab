@@ -34,5 +34,6 @@ spec:
     monitoring:
       podMonitorEnabled: true
       podMonitor:
-        additionalLabels:
+        enabled: true
+        labels:
           release: kube-prometheus-stack
