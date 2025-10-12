@@ -384,38 +384,17 @@ spec:
           claimName: immich-ml-cache
 ---
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: immich-ml-cache-nfs
-spec:
-  capacity:
-    storage: 50Gi
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: immich-nfs
-  mountOptions:
-    - nfsvers=3
-    - hard
-    - timeo=600
-    - retrans=2
-  nfs:
-    server: 10.0.2.100
-    path: /volume1/immich/ml-cache
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: immich-ml-cache
   namespace: immich
 spec:
   accessModes:
-    - ReadWriteMany
-  storageClassName: immich-nfs
+    - ReadWriteOnce
+  storageClassName: longhorn
   resources:
     requests:
-      storage: 50Gi
-  volumeName: immich-ml-cache-nfs
+      storage: 10Gi
 ---
 apiVersion: v1
 kind: Service
