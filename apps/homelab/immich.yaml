@@ -114,6 +114,8 @@ spec:
     - hard
     - timeo=600
     - retrans=2
+    - actimeo=30
+    - lookupcache=positive
   nfs:
     server: 10.0.2.100
     path: /volume1/immich/library
@@ -331,7 +333,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        supplementalGroups: [10]
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -443,7 +444,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        supplementalGroups: [10]
         seccompProfile:
           type: RuntimeDefault
       containers:
