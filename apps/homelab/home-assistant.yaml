@@ -54,10 +54,7 @@ spec:
     ingress:
       external: true
     serviceMonitor:
-      enabled: true
-      scrapeInterval: 30s
-      labels:
-        release: kube-prometheus-stack
+      enabled: false
     configuration:
       enabled: false
     persistence:
