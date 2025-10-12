@@ -331,6 +331,7 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+        supplementalGroups: [10]
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -378,10 +379,18 @@ spec:
         volumeMounts:
         - name: cache
           mountPath: /cache
+        - name: config
+          mountPath: /.config
+        - name: hf-cache
+          mountPath: /.cache
       volumes:
       - name: cache
         persistentVolumeClaim:
           claimName: immich-ml-cache
+      - name: config
+        emptyDir: {}
+      - name: hf-cache
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -434,6 +443,7 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+        supplementalGroups: [10]
         seccompProfile:
           type: RuntimeDefault
       containers:
