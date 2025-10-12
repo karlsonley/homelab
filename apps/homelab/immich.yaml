@@ -452,6 +452,8 @@ spec:
         ports:
         - containerPort: 2283
           name: http
+        - containerPort: 8081
+          name: metrics
         startupProbe:
           tcpSocket:
             port: 2283
@@ -490,8 +492,8 @@ spec:
           value: immich-redis
         - name: IMMICH_MACHINE_LEARNING_URL
           value: http://immich-machine-learning:3003
-        - name: IMMICH_METRICS
-          value: "true"
+        - name: IMMICH_TELEMETRY_INCLUDE
+          value: "all"
         - name: IMMICH_CONFIG_FILE
           value: /config/immich.json
         volumeMounts:
@@ -522,6 +524,9 @@ spec:
   - port: 2283
     targetPort: 2283
     name: http
+  - port: 8081
+    targetPort: 8081
+    name: metrics
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -537,8 +542,8 @@ spec:
     matchLabels:
       app.kubernetes.io/name: immich-server
   endpoints:
-  - port: http
-    path: /api/server-info/metrics
+  - port: metrics
+    path: /metrics
     interval: 30s
     scrapeTimeout: 10s
   namespaceSelector:
