@@ -28,10 +28,6 @@ spec:
       name: '*'
     - kind: ImageUpdateAutomation
       name: '*'
-    - kind: ImageRepository
-      name: '*'
-    - kind: ImagePolicy
-      name: '*'
   inclusionList:
     - ".*upgrade.*"
     - ".*successful.*"
