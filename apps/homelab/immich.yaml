@@ -447,7 +447,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: server
-        image: ghcr.io/immich-app/immich-server:v2.0.1 # {"$imagepolicy": "flux-system:immich-server"}
+        image: ghcr.io/immich-app/immich-server:v2.1.0 # {"$imagepolicy": "flux-system:immich-server"}
         ports:
         - containerPort: 2283
           name: http
