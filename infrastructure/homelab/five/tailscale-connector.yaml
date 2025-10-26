@@ -1,0 +1,12 @@
+---
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: homelab-connector
+  namespace: tailscale
+spec:
+  hostname: homelab
+  subnetRouter:
+    advertiseRoutes:
+      - "10.0.2.200/32"  # Traefik
+      - "10.0.2.201/32"  # Blocky DNS
