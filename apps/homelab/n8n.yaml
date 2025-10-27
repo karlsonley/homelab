@@ -1,0 +1,239 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: n8n
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: n8n-data
+  namespace: n8n
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: n8n
+  namespace: flux-system
+spec:
+  image: docker.io/n8nio/n8n
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: n8n
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: n8n
+  policy:
+    semver:
+      range: ">=1.0.0 <2.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: n8n
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(n8n): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab
+    strategy: Setters
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: n8n-secrets
+  namespace: n8n
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: n8n-secrets
+    template:
+      type: Opaque
+      data:
+        encryption_key: "{{ .encryption_key}}"
+  data:
+  - secretKey: encryption_key
+    remoteRef:
+      key: name:n8n
+      property: encryption_key
+      version: latest_enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: n8n
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: n8n
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: n8n
+        image: docker.io/n8nio/n8n:1.117.1 # {"$imagepolicy": "flux-system:n8n"}
+        ports:
+        - containerPort: 5678
+          name: http
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: N8N_HOST
+          value: "n8n.sonley.dev"
+        - name: N8N_PROTOCOL
+          value: "https"
+        - name: N8N_PORT
+          value: "5678"
+        - name: WEBHOOK_URL
+          value: "https://n8n.sonley.dev/"
+        - name: DB_TYPE
+          value: "sqlite"
+        - name: DB_SQLITE_VACUUM_ON_STARTUP
+          value: "true"
+        - name: N8N_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: n8n-secrets
+              key: encryption_key
+        - name: N8N_USER_MANAGEMENT_DISABLED
+          value: "true"
+        - name: N8N_BASIC_AUTH_ACTIVE
+          value: "false"
+        - name: N8N_METRICS
+          value: "true"
+        - name: EXECUTIONS_DATA_PRUNE
+          value: "true"
+        - name: EXECUTIONS_DATA_MAX_AGE
+          value: "168"
+        - name: N8N_PERSONALIZATION_ENABLED
+          value: "false"
+        - name: N8N_DIAGNOSTICS_ENABLED
+          value: "false"
+        - name: N8N_VERSION_NOTIFICATIONS_ENABLED
+          value: "false"
+        - name: N8N_TEMPLATES_ENABLED
+          value: "false"
+        - name: N8N_SECURITY_AUDIT_TRUST_PROXY
+          value: "true"
+        - name: N8N_BLOCK_ENV_ACCESS_IN_NODE
+          value: "true"
+        - name: N8N_GIT_NODE_DISABLE_BARE_REPOS
+          value: "true"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5678
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5678
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        volumeMounts:
+        - name: data
+          mountPath: /home/node/.n8n
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: n8n-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: n8n
+  namespace: n8n
+  labels:
+    app.kubernetes.io/name: n8n
+spec:
+  selector:
+    app.kubernetes.io/name: n8n
+  ports:
+  - port: 5678
+    targetPort: 5678
+    name: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: n8n
+  namespace: n8n
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: n8n
+  endpoints:
+  - port: http
+    path: /metrics
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`n8n.sonley.dev`)
+      services:
+        - kind: Service
+          name: n8n
+          namespace: n8n
+          port: 5678
