@@ -47,7 +47,7 @@ spec:
     push:
       branch: main
   update:
-    path: ./apps/homelab
+    path: ./apps/homelab/blocky.yaml
     strategy: Setters
 ---
 apiVersion: v1

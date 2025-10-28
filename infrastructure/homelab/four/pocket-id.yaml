@@ -47,7 +47,7 @@ spec:
     push:
       branch: main
   update:
-    path: ./infrastructure/homelab/four
+    path: ./infrastructure/homelab/four/pocket-id.yaml
     strategy: Setters
 ---
 apiVersion: v1

@@ -60,7 +60,7 @@ spec:
     push:
       branch: main
   update:
-    path: ./apps/homelab
+    path: ./apps/homelab/ollama.yaml
     strategy: Setters
 ---
 apiVersion: apps/v1

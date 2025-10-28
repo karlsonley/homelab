@@ -60,7 +60,7 @@ spec:
     push:
       branch: main
   update:
-    path: ./apps/homelab
+    path: ./apps/homelab/n8n.yaml
     strategy: Setters
 ---
 apiVersion: external-secrets.io/v1
