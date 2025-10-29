@@ -124,7 +124,7 @@ spec:
             secretKeyRef:
               name: pocket-id
               key: encryption_key
-        image: ghcr.io/pocket-id/pocket-id:v1.14.1 # {"$imagepolicy": "flux-system:pocket-id"}
+        image: ghcr.io/pocket-id/pocket-id:v1.14.2 # {"$imagepolicy": "flux-system:pocket-id"}
         name: pocket-id
         ports:
         - containerPort: 1411
