@@ -91,7 +91,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: ollama
-        image: docker.io/ollama/ollama:0.12.7 # {"$imagepolicy": "flux-system:ollama"}
+        image: docker.io/ollama/ollama:0.12.8 # {"$imagepolicy": "flux-system:ollama"}
         ports:
         - containerPort: 11434
           name: http
