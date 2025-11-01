@@ -79,8 +79,6 @@ spec:
   postgresql:
     shared_preload_libraries:
       - vectors
-    pg_basebackup:
-      - --format=plain
   storage:
     size: 20Gi
     storageClass: longhorn
