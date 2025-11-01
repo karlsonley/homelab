@@ -34,6 +34,10 @@ spec:
       storage:
         type: filesystem
         retention_period: 7d
+        bucketNames:
+          chunks: loki-chunks
+          ruler: loki-ruler
+          admin: loki-admin
       limits_config:
         retention_period: 7d
       compactor:
