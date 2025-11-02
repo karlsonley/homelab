@@ -1,0 +1,180 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: velero-s3-credentials
+  namespace: velero
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: velero-s3-credentials
+    template:
+      type: Opaque
+      data:
+        cloud: |
+          [default]
+          aws_access_key_id={{ .AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key={{ .AWS_SECRET_ACCESS_KEY }}
+  data:
+  - secretKey: AWS_ACCESS_KEY_ID
+    remoteRef:
+      key: name:velero-backup
+      property: AWS_ACCESS_KEY_ID
+      version: latest_enabled
+  - secretKey: AWS_SECRET_ACCESS_KEY
+    remoteRef:
+      key: name:velero-backup
+      property: AWS_SECRET_ACCESS_KEY
+      version: latest_enabled
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: velero-repo-credentials
+  namespace: velero
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: velero-repo-credentials
+    template:
+      type: Opaque
+      data:
+        repository-password: "{{ .KOPIA_PASSWORD }}"
+  data:
+  - secretKey: KOPIA_PASSWORD
+    remoteRef:
+      key: name:velero-backup
+      property: KOPIA_PASSWORD
+      version: latest_enabled
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: vmware-tanzu
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://vmware-tanzu.github.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: velero
+  namespace: flux-system
+spec:
+  releaseName: velero
+  targetNamespace: velero
+  interval: 30m
+  chart:
+    spec:
+      chart: velero
+      version: ">=11.0.0 <12.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: vmware-tanzu
+      interval: 5m
+  values:
+    upgradeCRDs: false
+    kubectl:
+      image:
+        repository: docker.io/bitnami/kubectl
+        tag: latest
+    uploaderType: kopia
+    initContainers:
+    - name: velero-plugin-for-aws
+      image: velero/velero-plugin-for-aws:latest
+      volumeMounts:
+      - mountPath: /target
+        name: plugins
+    configuration:
+      backupStorageLocation:
+      - name: default
+        provider: aws
+        bucket: stkmsvelerobackups
+        default: true
+        config:
+          region: nl-ams
+          s3ForcePathStyle: "true"
+          s3Url: https://s3.nl-ams.scw.cloud
+      volumeSnapshotLocation:
+      - name: default
+        provider: longhorn
+        config:
+          region: nl-ams
+      features: EnableCSI
+      defaultBackupTTL: 720h
+      uploaderConfig:
+        parallelFilesUpload: 8
+    credentials:
+      useSecret: true
+      existingSecret: velero-s3-credentials
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
+    deployNodeAgent: true
+    nodeAgent:
+      podVolumePath: /var/lib/kubelet/pods
+      privileged: false
+      resources:
+        requests:
+          cpu: 500m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: daily-backup
+  namespace: velero
+spec:
+  schedule: "0 1 * * *"
+  template:
+    ttl: 336h
+    includedNamespaces:
+    - "*"
+    excludedNamespaces:
+    - velero
+    - kube-system
+    - kube-public
+    - kube-node-lease
+    snapshotVolumes: true
+    defaultVolumesToFsBackup: true
+    storageLocation: default
+---
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: weekly-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * 0"
+  template:
+    ttl: 2160h
+    includedNamespaces:
+    - "*"
+    excludedNamespaces:
+    - velero
+    - kube-system
+    - kube-public
+    - kube-node-lease
+    snapshotVolumes: true
+    defaultVolumesToFsBackup: true
+    storageLocation: default

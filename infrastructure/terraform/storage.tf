@@ -11,8 +11,8 @@ module "storage_backup" {
   name = "backup"
 }
 
-module "storage_longhorn_backups" {
+module "storage_velero_backups" {
   source = "./modules/scaleway-private-storage/"
 
-  name = "longhornbackups"
+  name = "velerobackups"
 }
