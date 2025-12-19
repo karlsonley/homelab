@@ -336,7 +336,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: machine-learning
-        image: ghcr.io/immich-app/immich-machine-learning:v2.4.0 # {"$imagepolicy": "flux-system:immich-machine-learning"}
+        image: ghcr.io/immich-app/immich-machine-learning:v2.4.1 # {"$imagepolicy": "flux-system:immich-machine-learning"}
         ports:
         - containerPort: 3003
           name: http
