@@ -241,7 +241,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: open-webui
-        image: ghcr.io/open-webui/open-webui:v0.6.41 # {"$imagepolicy": "flux-system:open-webui"}
+        image: ghcr.io/open-webui/open-webui:v0.6.42 # {"$imagepolicy": "flux-system:open-webui"}
         ports:
         - containerPort: 8080
           name: http
