@@ -147,6 +147,9 @@ metadata:
     gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "uptime-kuma.png"
     gethomepage.dev/href: "https://uptime-kuma.sonley.dev"
+    gethomepage.dev/widget.type: "uptimekuma"
+    gethomepage.dev/widget.url: "http://uptime-kuma.uptime-kuma:3001"
+    gethomepage.dev/widget.slug: "homelab"
 spec:
   type: ClusterIP
   ports:
