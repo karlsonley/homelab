@@ -152,6 +152,13 @@ metadata:
     app: pocket-id
   name: pocket-id
   namespace: pocket-id
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Pocket ID"
+    gethomepage.dev/description: "OIDC Provider"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "authentik.png"
+    gethomepage.dev/href: "https://pocket-id.sonley.dev"
 spec:
   ports:
     - name: "1411"

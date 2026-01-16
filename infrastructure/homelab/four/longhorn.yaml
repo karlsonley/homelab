@@ -33,6 +33,15 @@ spec:
         name: longhorn
       interval: 5m
   values:
+    service:
+      ui:
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: "Longhorn"
+          gethomepage.dev/description: "Storage"
+          gethomepage.dev/group: "Infrastructure"
+          gethomepage.dev/icon: "longhorn.png"
+          gethomepage.dev/href: "https://longhorn.sonley.dev"
     metrics:
       serviceMonitor:
         enabled: true

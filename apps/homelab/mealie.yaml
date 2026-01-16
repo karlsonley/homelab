@@ -209,6 +209,13 @@ metadata:
   namespace: mealie
   labels:
     app.kubernetes.io/name: mealie
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Mealie"
+    gethomepage.dev/description: "Recipe Manager"
+    gethomepage.dev/group: "Applications"
+    gethomepage.dev/icon: "mealie.png"
+    gethomepage.dev/href: "https://mealie.sonley.dev"
 spec:
   selector:
     app.kubernetes.io/name: mealie

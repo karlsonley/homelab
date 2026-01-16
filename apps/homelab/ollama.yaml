@@ -343,6 +343,13 @@ metadata:
   namespace: ollama
   labels:
     app.kubernetes.io/name: open-webui
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Ollama"
+    gethomepage.dev/description: "LLM Interface"
+    gethomepage.dev/group: "Applications"
+    gethomepage.dev/icon: "ollama.png"
+    gethomepage.dev/href: "https://ollama.sonley.dev"
 spec:
   selector:
     app.kubernetes.io/name: open-webui

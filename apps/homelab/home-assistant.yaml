@@ -51,6 +51,14 @@ spec:
   values:
     podAnnotations:
       secret.reloader.stakater.com/reload: "home-assistant-config"
+    service:
+      annotations:
+        gethomepage.dev/enabled: "true"
+        gethomepage.dev/name: "Home Assistant"
+        gethomepage.dev/description: "Home Automation"
+        gethomepage.dev/group: "Applications"
+        gethomepage.dev/icon: "home-assistant.png"
+        gethomepage.dev/href: "https://home-assistant.sonley.dev"
     ingress:
       external: true
     serviceMonitor:
