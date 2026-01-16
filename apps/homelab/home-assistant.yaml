@@ -54,7 +54,9 @@ spec:
     ingress:
       external: true
     serviceMonitor:
-      enabled: false
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
     configuration:
       enabled: false
     persistence:

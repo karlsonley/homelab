@@ -221,6 +221,50 @@ spec:
   - port: http
     path: /metrics
 ---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: n8n-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: n8n
+    rules:
+    - alert: N8NDown
+      expr: up{job="n8n"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "N8N is down"
+        description: "N8N workflow automation has been unreachable for more than 5 minutes."
+    - alert: N8NHighWorkflowFailureRate
+      expr: rate(n8n_workflow_failed_total[15m]) > 0.1
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "N8N high workflow failure rate"
+        description: "N8N is experiencing more than 0.1 workflow failures per second over the last 15 minutes."
+    - alert: N8NWorkflowExecutionSlow
+      expr: histogram_quantile(0.95, rate(n8n_workflow_execution_duration_seconds_bucket[5m])) > 60
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: "N8N workflow executions are slow"
+        description: "N8N 95th percentile workflow execution time is above 60 seconds."
+    - alert: N8NHighMemoryUsage
+      expr: container_memory_working_set_bytes{container="n8n"} / container_spec_memory_limit_bytes{container="n8n"} > 0.85
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "N8N high memory usage"
+        description: "N8N is using more than 85% of its memory limit."
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:

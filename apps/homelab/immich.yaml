@@ -549,6 +549,58 @@ spec:
     matchNames:
     - immich
 ---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: immich-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: immich
+    rules:
+    - alert: ImmichServerDown
+      expr: up{job="immich"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Immich server is down"
+        description: "Immich photo server has been unreachable for more than 5 minutes."
+    - alert: ImmichHighJobQueueDepth
+      expr: immich_jobs_waiting > 1000
+      for: 30m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Immich job queue is backing up"
+        description: "Immich has more than 1000 jobs waiting in the queue for over 30 minutes."
+    - alert: ImmichMLServerDown
+      expr: absent(up{job=~".*immich-machine-learning.*"}) or up{job=~".*immich-machine-learning.*"} == 0
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Immich machine learning server is down"
+        description: "Immich ML server has been unreachable for more than 10 minutes. Face detection and smart search will be unavailable."
+    - alert: ImmichDatabaseConnectionErrors
+      expr: rate(immich_api_errors_total{error_type="database"}[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Immich database connection errors"
+        description: "Immich is experiencing database connection errors."
+    - alert: ImmichStorageNearlyFull
+      expr: (kubelet_volume_stats_used_bytes{persistentvolumeclaim="immich-library"} / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim="immich-library"}) > 0.85
+      for: 30m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Immich storage nearly full"
+        description: "Immich library storage is more than 85% full."
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:

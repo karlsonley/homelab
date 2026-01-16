@@ -193,6 +193,50 @@ spec:
     matchNames:
     - blocky
 ---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: blocky-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: blocky
+    rules:
+    - alert: BlockyDown
+      expr: up{job="blocky"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Blocky DNS is down"
+        description: "Blocky DNS server has been unreachable for more than 5 minutes."
+    - alert: BlockyHighQueryLatency
+      expr: histogram_quantile(0.95, rate(blocky_query_duration_ms_bucket[5m])) > 500
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Blocky high query latency"
+        description: "Blocky 95th percentile query latency is above 500ms for the last 10 minutes."
+    - alert: BlockyUpstreamErrors
+      expr: rate(blocky_query_total{response_type="RESOLVED"}[5m]) == 0 and rate(blocky_query_total[5m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Blocky upstream resolution failing"
+        description: "Blocky is receiving queries but failing to resolve them via upstream DNS."
+    - alert: BlockyHighBlockRatio
+      expr: (rate(blocky_query_total{response_type="BLOCKED"}[1h]) / rate(blocky_query_total[1h])) > 0.7
+      for: 30m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Blocky blocking over 70% of queries"
+        description: "Blocky is blocking more than 70% of DNS queries. This may indicate misconfiguration or malware activity."
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:

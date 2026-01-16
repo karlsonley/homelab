@@ -351,6 +351,58 @@ spec:
     targetPort: 8080
     name: http
 ---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ollama-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: ollama
+    rules:
+    - alert: OllamaPodDown
+      expr: kube_pod_status_ready{namespace="ollama", pod=~"ollama-.*"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Ollama pod is not ready"
+        description: "Ollama LLM server pod has been not ready for more than 5 minutes."
+    - alert: OllamaHighMemoryUsage
+      expr: (container_memory_working_set_bytes{namespace="ollama", container="ollama"} / container_spec_memory_limit_bytes{namespace="ollama", container="ollama"}) > 0.9
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Ollama high memory usage"
+        description: "Ollama is using more than 90% of its memory limit. Consider increasing limits or reducing model size."
+    - alert: OllamaHighCPUUsage
+      expr: (rate(container_cpu_usage_seconds_total{namespace="ollama", container="ollama"}[5m]) / container_spec_cpu_quota{namespace="ollama", container="ollama"} * 100000) > 0.9
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Ollama high CPU usage"
+        description: "Ollama is using more than 90% of its CPU limit for extended period."
+    - alert: OllamaStorageNearlyFull
+      expr: (kubelet_volume_stats_used_bytes{namespace="ollama", persistentvolumeclaim="ollama-models"} / kubelet_volume_stats_capacity_bytes{namespace="ollama", persistentvolumeclaim="ollama-models"}) > 0.85
+      for: 30m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Ollama model storage nearly full"
+        description: "Ollama model storage is more than 85% full. Consider expanding the volume or removing unused models."
+    - alert: OpenWebUIDown
+      expr: kube_pod_status_ready{namespace="ollama", pod=~"open-webui-.*"} == 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Open WebUI is not ready"
+        description: "Open WebUI pod has been not ready for more than 5 minutes."
+---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
