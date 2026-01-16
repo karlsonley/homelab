@@ -1,4 +1,54 @@
 ---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: uptime-kuma
+  namespace: flux-system
+spec:
+  image: docker.io/louislam/uptime-kuma
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: uptime-kuma
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: uptime-kuma
+  filterTags:
+    pattern: '^(?P<version>\d+\.\d+\.\d+)-rootless$'
+    extract: '$version'
+  policy:
+    semver:
+      range: ">=2.0.0 <3.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: uptime-kuma
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(uptime-kuma): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab/uptime-kuma.yaml
+    strategy: Setters
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -43,7 +93,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: uptime-kuma
-          image: louislam/uptime-kuma:2.0.0-beta-rootless.4
+          image: docker.io/louislam/uptime-kuma:2.0.0-rootless # {"$imagepolicy": "flux-system:uptime-kuma"}
           ports:
           - containerPort: 3001
             name: http
