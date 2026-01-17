@@ -605,6 +605,7 @@ metadata:
     gethomepage.dev/group: "Applications"
     gethomepage.dev/icon: "immich.png"
     gethomepage.dev/href: "https://immich.sonley.dev"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=immich-server"
 spec:
   entryPoints:
     - websecure

@@ -126,6 +126,7 @@ spec:
           gethomepage.dev/group: "Infrastructure"
           gethomepage.dev/icon: "traefik.png"
           gethomepage.dev/href: "https://traefik.sonley.dev"
+          gethomepage.dev/pod-selector: "app.kubernetes.io/name=traefik"
     experimental:
       plugins:
         traefik-oidc-auth:

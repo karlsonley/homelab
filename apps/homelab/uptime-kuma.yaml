@@ -165,6 +165,7 @@ metadata:
     gethomepage.dev/widget.type: "uptimekuma"
     gethomepage.dev/widget.url: "http://uptime-kuma.uptime-kuma:3001"
     gethomepage.dev/widget.slug: "homelab"
+    gethomepage.dev/pod-selector: "app=uptime-kuma"
 spec:
   entryPoints:
     - websecure
