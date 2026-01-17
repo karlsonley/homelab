@@ -170,7 +170,7 @@ metadata:
     gethomepage.dev/name: "Pocket ID"
     gethomepage.dev/description: "OIDC Provider"
     gethomepage.dev/group: "Infrastructure"
-    gethomepage.dev/icon: "authentik.png"
+    gethomepage.dev/icon: "pocket-id.png"
     gethomepage.dev/href: "https://pocket-id.sonley.dev"
     gethomepage.dev/pod-selector: "app=pocket-id"
 spec:
