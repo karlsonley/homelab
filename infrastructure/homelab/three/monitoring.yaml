@@ -157,6 +157,9 @@ spec:
         - name: "null"
         templates:
         - '/etc/alertmanager/config/*.tmpl'
+    prometheus:
+      prometheusSpec:
+        serviceDiscoveryRole: EndpointSlice
     grafana:
       defaultDashboardsEnabled: false
       assertNoLeakedSecrets: false
