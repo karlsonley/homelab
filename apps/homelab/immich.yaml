@@ -516,13 +516,6 @@ metadata:
   namespace: immich
   labels:
     app.kubernetes.io/name: immich-server
-  annotations:
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "Immich"
-    gethomepage.dev/description: "Photo Management"
-    gethomepage.dev/group: "Applications"
-    gethomepage.dev/icon: "immich.png"
-    gethomepage.dev/href: "https://immich.sonley.dev"
 spec:
   selector:
     app.kubernetes.io/name: immich-server
@@ -583,14 +576,6 @@ spec:
       annotations:
         summary: "Immich job queue is backing up"
         description: "Immich has more than 1000 jobs waiting in the queue for over 30 minutes."
-    - alert: ImmichMLServerDown
-      expr: absent(up{job=~".*immich-machine-learning.*"}) or up{job=~".*immich-machine-learning.*"} == 0
-      for: 10m
-      labels:
-        severity: warning
-      annotations:
-        summary: "Immich machine learning server is down"
-        description: "Immich ML server has been unreachable for more than 10 minutes. Face detection and smart search will be unavailable."
     - alert: ImmichDatabaseConnectionErrors
       expr: rate(immich_api_errors_total{error_type="database"}[5m]) > 0.1
       for: 5m
@@ -613,6 +598,13 @@ kind: IngressRoute
 metadata:
   name: immich
   namespace: immich
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Immich"
+    gethomepage.dev/description: "Photo Management"
+    gethomepage.dev/group: "Applications"
+    gethomepage.dev/icon: "immich.png"
+    gethomepage.dev/href: "https://immich.sonley.dev"
 spec:
   entryPoints:
     - websecure

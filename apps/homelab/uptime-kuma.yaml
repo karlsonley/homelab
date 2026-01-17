@@ -140,16 +140,6 @@ metadata:
     app: uptime-kuma
   name: uptime-kuma
   namespace: uptime-kuma
-  annotations:
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "Uptime Kuma"
-    gethomepage.dev/description: "Uptime Monitoring"
-    gethomepage.dev/group: "Monitoring"
-    gethomepage.dev/icon: "uptime-kuma.png"
-    gethomepage.dev/href: "https://uptime-kuma.sonley.dev"
-    gethomepage.dev/widget.type: "uptimekuma"
-    gethomepage.dev/widget.url: "http://uptime-kuma.uptime-kuma:3001"
-    gethomepage.dev/widget.slug: "homelab"
 spec:
   type: ClusterIP
   ports:
@@ -165,6 +155,16 @@ kind: IngressRoute
 metadata:
   name: uptime-kuma
   namespace: uptime-kuma
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Uptime Kuma"
+    gethomepage.dev/description: "Uptime Monitoring"
+    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/icon: "uptime-kuma.png"
+    gethomepage.dev/href: "https://uptime-kuma.sonley.dev"
+    gethomepage.dev/widget.type: "uptimekuma"
+    gethomepage.dev/widget.url: "http://uptime-kuma.uptime-kuma:3001"
+    gethomepage.dev/widget.slug: "homelab"
 spec:
   entryPoints:
     - websecure

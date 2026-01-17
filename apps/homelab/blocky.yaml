@@ -148,12 +148,6 @@ kind: Service
 metadata:
   annotations:
     metallb.io/loadBalancerIPs: 10.0.2.201
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "Blocky"
-    gethomepage.dev/description: "DNS Ad Blocker"
-    gethomepage.dev/group: "Infrastructure"
-    gethomepage.dev/icon: "blocky.png"
-    gethomepage.dev/href: "https://blocky.sonley.dev"
   labels:
     app: blocky
   name: blocky
@@ -248,6 +242,13 @@ kind: IngressRoute
 metadata:
   name: blocky
   namespace: blocky
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Blocky"
+    gethomepage.dev/description: "DNS Ad Blocker"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "blocky.png"
+    gethomepage.dev/href: "https://blocky.sonley.dev"
 spec:
   entryPoints:
     - websecure

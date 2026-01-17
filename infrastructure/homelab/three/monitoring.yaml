@@ -111,26 +111,7 @@ spec:
     valuesKey: webhook_url
     targetPath: alertmanager.config.receivers[0].discord_configs[0].webhook_url
   values:
-    prometheus:
-      service:
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/name: "Prometheus"
-          gethomepage.dev/description: "Metrics"
-          gethomepage.dev/group: "Monitoring"
-          gethomepage.dev/icon: "prometheus.png"
-          gethomepage.dev/href: "https://prometheus.sonley.dev"
-          gethomepage.dev/widget.type: "prometheus"
-          gethomepage.dev/widget.url: "http://kube-prometheus-stack-prometheus.monitoring:9090"
     alertmanager:
-      service:
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/name: "Alertmanager"
-          gethomepage.dev/description: "Alert Management"
-          gethomepage.dev/group: "Monitoring"
-          gethomepage.dev/icon: "alertmanager.png"
-          gethomepage.dev/href: "https://alertmanager.sonley.dev"
       alertmanagerSpec:
         replicas: 3
       config:
@@ -177,14 +158,6 @@ spec:
         templates:
         - '/etc/alertmanager/config/*.tmpl'
     grafana:
-      service:
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/name: "Grafana"
-          gethomepage.dev/description: "Monitoring Dashboards"
-          gethomepage.dev/group: "Monitoring"
-          gethomepage.dev/icon: "grafana.png"
-          gethomepage.dev/href: "https://grafana.sonley.dev"
       defaultDashboardsEnabled: false
       assertNoLeakedSecrets: false
       additionalDataSources:
@@ -238,6 +211,13 @@ kind: IngressRoute
 metadata:
   name: grafana
   namespace: monitoring
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Grafana"
+    gethomepage.dev/description: "Monitoring Dashboards"
+    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/icon: "grafana.png"
+    gethomepage.dev/href: "https://grafana.sonley.dev"
 spec:
   entryPoints:
     - websecure
@@ -255,6 +235,13 @@ kind: IngressRoute
 metadata:
   name: alertmanager
   namespace: monitoring
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Alertmanager"
+    gethomepage.dev/description: "Alert Management"
+    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/icon: "alertmanager.png"
+    gethomepage.dev/href: "https://alertmanager.sonley.dev"
 spec:
   entryPoints:
     - websecure
@@ -275,6 +262,15 @@ kind: IngressRoute
 metadata:
   name: prometheus
   namespace: monitoring
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Prometheus"
+    gethomepage.dev/description: "Metrics"
+    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/icon: "prometheus.png"
+    gethomepage.dev/href: "https://prometheus.sonley.dev"
+    gethomepage.dev/widget.type: "prometheus"
+    gethomepage.dev/widget.url: "http://kube-prometheus-stack-prometheus.monitoring:9090"
 spec:
   entryPoints:
     - websecure

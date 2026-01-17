@@ -198,13 +198,6 @@ metadata:
   namespace: n8n
   labels:
     app.kubernetes.io/name: n8n
-  annotations:
-    gethomepage.dev/enabled: "true"
-    gethomepage.dev/name: "N8N"
-    gethomepage.dev/description: "Workflow Automation"
-    gethomepage.dev/group: "Applications"
-    gethomepage.dev/icon: "n8n.png"
-    gethomepage.dev/href: "https://n8n.sonley.dev"
 spec:
   selector:
     app.kubernetes.io/name: n8n
@@ -277,6 +270,13 @@ kind: IngressRoute
 metadata:
   name: n8n
   namespace: n8n
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "N8N"
+    gethomepage.dev/description: "Workflow Automation"
+    gethomepage.dev/group: "Applications"
+    gethomepage.dev/icon: "n8n.png"
+    gethomepage.dev/href: "https://n8n.sonley.dev"
 spec:
   entryPoints:
     - websecure

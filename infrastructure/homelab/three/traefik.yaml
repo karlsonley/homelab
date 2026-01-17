@@ -88,14 +88,6 @@ spec:
         name: traefik
       interval: 5m
   values:
-    service:
-      annotations:
-        gethomepage.dev/enabled: "true"
-        gethomepage.dev/name: "Traefik"
-        gethomepage.dev/description: "Ingress Controller"
-        gethomepage.dev/group: "Infrastructure"
-        gethomepage.dev/icon: "traefik.png"
-        gethomepage.dev/href: "https://traefik.sonley.dev"
     deployment:
       kind: DaemonSet
     ports:
@@ -127,6 +119,13 @@ spec:
         entryPoints: ["websecure"]
         middlewares:
           - name: oidc-auth
+        annotations:
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/name: "Traefik"
+          gethomepage.dev/description: "Ingress Controller"
+          gethomepage.dev/group: "Infrastructure"
+          gethomepage.dev/icon: "traefik.png"
+          gethomepage.dev/href: "https://traefik.sonley.dev"
     experimental:
       plugins:
         traefik-oidc-auth:
