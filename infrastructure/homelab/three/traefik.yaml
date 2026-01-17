@@ -97,6 +97,12 @@ spec:
             to: websecure
             scheme: https
             permanent: true
+      websecure:
+        transport:
+          respondingTimeouts:
+            readTimeout: 0s
+            writeTimeout: 0s
+            idleTimeout: 180s
       metrics:
         port: 9100
         expose:

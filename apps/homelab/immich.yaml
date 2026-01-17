@@ -594,17 +594,6 @@ spec:
         description: "Immich library storage is more than 85% full."
 ---
 apiVersion: traefik.io/v1alpha1
-kind: ServersTransport
-metadata:
-  name: transport
-  namespace: immich
-spec:
-  forwardingTimeouts:
-    dialTimeout: 30s
-    responseHeaderTimeout: 0s
-    idleConnTimeout: 900s
----
-apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: immich
@@ -628,4 +617,3 @@ spec:
           name: immich-server
           namespace: immich
           port: 2283
-          serversTransport: immich-transport@kubernetescrd
