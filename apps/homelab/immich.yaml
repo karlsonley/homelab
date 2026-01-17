@@ -594,21 +594,9 @@ spec:
         description: "Immich library storage is more than 85% full."
 ---
 apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: large-upload
-  namespace: immich
-spec:
-  buffering:
-    maxRequestBodyBytes: 10737418240
-    maxResponseBodyBytes: 10737418240
-    memRequestBodyBytes: 2097152
-    memResponseBodyBytes: 2097152
----
-apiVersion: traefik.io/v1alpha1
 kind: ServersTransport
 metadata:
-  name: long-timeout
+  name: transport
   namespace: immich
 spec:
   forwardingTimeouts:
@@ -635,12 +623,9 @@ spec:
   routes:
     - kind: Rule
       match: Host(`immich.sonley.dev`)
-      middlewares:
-        - name: large-upload
-          namespace: immich
       services:
         - kind: Service
           name: immich-server
           namespace: immich
           port: 2283
-          serversTransport: long-timeout
+          serversTransport: immich-transport@kubernetescrd
