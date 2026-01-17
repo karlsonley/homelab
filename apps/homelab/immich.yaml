@@ -244,6 +244,8 @@ spec:
     metadata:
       labels:
         app: immich-redis
+      annotations:
+        backup.velero.io/backup-volumes-excludes: data
     spec:
       securityContext:
         runAsNonRoot: true
@@ -326,6 +328,8 @@ spec:
     metadata:
       labels:
         app: immich-machine-learning
+      annotations:
+        backup.velero.io/backup-volumes-excludes: cache,config,hf-cache
     spec:
       securityContext:
         runAsNonRoot: true
@@ -437,6 +441,8 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: immich-server
+      annotations:
+        backup.velero.io/backup-volumes-excludes: library
     spec:
       securityContext:
         runAsNonRoot: true
