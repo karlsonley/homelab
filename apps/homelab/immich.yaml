@@ -9,7 +9,7 @@ metadata:
   name: immich-db-password
   namespace: immich
 spec:
-  refreshInterval: 15m
+  refreshInterval: 1h
   secretStoreRef:
     kind: ClusterSecretStore
     name: scaleway-secret-manager
@@ -32,7 +32,7 @@ metadata:
   name: immich-config
   namespace: immich
 spec:
-  refreshInterval: 15m
+  refreshInterval: 1h
   secretStoreRef:
     kind: ClusterSecretStore
     name: scaleway-secret-manager

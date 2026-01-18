@@ -10,7 +10,7 @@ metadata:
   name: home-assistant-config
   namespace: home-assistant
 spec:
-  refreshInterval: 15m
+  refreshInterval: 1h
   secretStoreRef:
     kind: ClusterSecretStore
     name: scaleway-secret-manager

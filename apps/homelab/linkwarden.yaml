@@ -9,7 +9,7 @@ metadata:
   name: linkwarden-db-password
   namespace: linkwarden
 spec:
-  refreshInterval: 15m
+  refreshInterval: 1h
   secretStoreRef:
     kind: ClusterSecretStore
     name: scaleway-secret-manager
@@ -32,7 +32,7 @@ metadata:
   name: linkwarden-secrets
   namespace: linkwarden
 spec:
-  refreshInterval: 15m
+  refreshInterval: 1h
   secretStoreRef:
     kind: ClusterSecretStore
     name: scaleway-secret-manager
