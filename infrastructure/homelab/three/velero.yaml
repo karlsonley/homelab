@@ -1,0 +1,217 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/warn: privileged
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: vmware-tanzu
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://vmware-tanzu.github.io/helm-charts
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: velero-credentials
+  namespace: velero
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: velero-credentials
+    template:
+      data:
+        cloud: |
+          [default]
+          aws_access_key_id={{ .access_key }}
+          aws_secret_access_key={{ .secret_key }}
+        kopia_password: "{{ .kopia_password }}"
+  data:
+  - secretKey: access_key
+    remoteRef:
+      key: name:velero-backup
+      property: AWS_ACCESS_KEY_ID
+      version: latest_enabled
+  - secretKey: secret_key
+    remoteRef:
+      key: name:velero-backup
+      property: AWS_SECRET_ACCESS_KEY
+      version: latest_enabled
+  - secretKey: kopia_password
+    remoteRef:
+      key: name:velero-backup
+      property: KOPIA_PASSWORD
+      version: latest_enabled
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: bitnami-kubectl
+  namespace: flux-system
+spec:
+  image: docker.io/bitnamilegacy/kubectl
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: bitnami-kubectl
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: bitnami-kubectl
+  policy:
+    semver:
+      range: ">=1.0.0 <2.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: velero-plugin-for-aws
+  namespace: flux-system
+spec:
+  image: velero/velero-plugin-for-aws
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: velero-plugin-for-aws
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: velero-plugin-for-aws
+  policy:
+    semver:
+      range: ">=1.0.0 <2.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: velero
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(velero): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./infrastructure/homelab/three/velero.yaml
+    strategy: Setters
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: velero
+  namespace: flux-system
+spec:
+  releaseName: velero
+  targetNamespace: velero
+  interval: 30m
+  chart:
+    spec:
+      chart: velero
+      version: ">=11.0.0 <12.0.0"
+      sourceRef:
+        kind: HelmRepository
+        name: vmware-tanzu
+      interval: 5m
+  values:
+    kubectl:
+      image:
+        tag: "1.31" # {"$imagepolicy": "flux-system:bitnami-kubectl:tag"}
+    initContainers:
+      - name: velero-plugin-for-aws
+        image: velero/velero-plugin-for-aws:v1.11.0 # {"$imagepolicy": "flux-system:velero-plugin-for-aws"}
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /target
+            name: plugins
+    configuration:
+      backupStorageLocation:
+        - name: default
+          provider: aws
+          bucket: stkmsvelerobackups
+          config:
+            region: nl-ams
+            s3ForcePathStyle: true
+            s3Url: https://s3.nl-ams.scw.cloud
+      volumeSnapshotLocation:
+        - name: default
+          provider: aws
+          config:
+            region: nl-ams
+      defaultBackupStorageLocation: default
+      defaultVolumeSnapshotLocations: aws:default
+      features: EnableCSI
+      defaultSnapshotMoveData: true
+      uploaderType: kopia
+      defaultVolumesToFsBackup: true
+      extraEnvVars:
+        - name: KOPIA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: velero-credentials
+              key: kopia_password
+    credentials:
+      useSecret: true
+      existingSecret: velero-credentials
+    snapshotsEnabled: true
+    deployNodeAgent: true
+    nodeAgent:
+      podVolumePath: /var/lib/kubelet/pods
+      extraEnvVars:
+        - name: KOPIA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: velero-credentials
+              key: kopia_password
+    schedules:
+      daily-backup:
+        disabled: false
+        # schedule: "0 2 * * *"
+        schedule: "45 10 * * *"
+        useOwnerReferencesInBackup: false
+        paused: false
+        template:
+          ttl: 720h
+          includedNamespaces:
+            - "*"
+          excludedNamespaces:
+            - kube-system
+            - velero
+            - monitoring
+            - ollama
+          includeClusterResources: true
+          snapshotMoveData: true
+          storageLocation: default
+          volumeSnapshotLocations:
+            - default
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
