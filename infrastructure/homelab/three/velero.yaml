@@ -190,8 +190,7 @@ spec:
     schedules:
       daily-backup:
         disabled: false
-        # schedule: "0 2 * * *"
-        schedule: "5 13 * * *"
+        schedule: "0 2 * * *"
         useOwnerReferencesInBackup: false
         paused: false
         template:
