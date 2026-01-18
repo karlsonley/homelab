@@ -28,13 +28,13 @@ spec:
   data:
   - secretKey: client_id
     remoteRef:
-      key: name:tailscale-operator
-      property: client_id
+      key: name:homelab
+      property: tailscale_client_id
       version: latest_enabled
   - secretKey: client_secret
     remoteRef:
-      key: name:tailscale-operator
-      property: client_secret
+      key: name:homelab
+      property: tailscale_client_secret
       version: latest_enabled
 ---
 apiVersion: source.toolkit.fluxcd.io/v1

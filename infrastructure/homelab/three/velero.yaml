@@ -38,18 +38,18 @@ spec:
   data:
   - secretKey: access_key
     remoteRef:
-      key: name:velero-backup
-      property: AWS_ACCESS_KEY_ID
+      key: name:homelab
+      property: velero_aws_access_key_id
       version: latest_enabled
   - secretKey: secret_key
     remoteRef:
-      key: name:velero-backup
-      property: AWS_SECRET_ACCESS_KEY
+      key: name:homelab
+      property: velero_aws_secret_access_key
       version: latest_enabled
   - secretKey: kopia_password
     remoteRef:
-      key: name:velero-backup
-      property: KOPIA_PASSWORD
+      key: name:homelab
+      property: velero_kopia_password
       version: latest_enabled
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2

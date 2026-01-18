@@ -22,8 +22,8 @@ spec:
   data:
   - secretKey: db_password
     remoteRef:
-      key: name:linkwarden
-      property: db_password
+      key: name:homelab
+      property: linkwarden_db_password
       version: latest_enabled
 ---
 apiVersion: external-secrets.io/v1
@@ -45,13 +45,13 @@ spec:
   data:
   - secretKey: nextauth_secret
     remoteRef:
-      key: name:linkwarden
-      property: nextauth_secret
+      key: name:homelab
+      property: linkwarden_nextauth_secret
       version: latest_enabled
   - secretKey: db_password
     remoteRef:
-      key: name:linkwarden
-      property: db_password
+      key: name:homelab
+      property: linkwarden_db_password
       version: latest_enabled
 ---
 apiVersion: external-secrets.io/v1
@@ -74,13 +74,13 @@ spec:
   data:
   - secretKey: oidc_client_id
     remoteRef:
-      key: name:pocket-id
-      property: oidc_client_id
+      key: name:homelab
+      property: pocket_id_oidc_client_id
       version: latest_enabled
   - secretKey: oidc_client_secret
     remoteRef:
-      key: name:pocket-id
-      property: oidc_client_secret
+      key: name:homelab
+      property: pocket_id_oidc_client_secret
       version: latest_enabled
 ---
 apiVersion: postgresql.cnpg.io/v1

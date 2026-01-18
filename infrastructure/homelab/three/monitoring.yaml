@@ -39,13 +39,13 @@ spec:
   data:
   - secretKey: oidc_client_id
     remoteRef:
-      key: name:pocket-id
-      property: oidc_client_id
+      key: name:homelab
+      property: pocket_id_oidc_client_id
       version: latest_enabled
   - secretKey: oidc_client_secret
     remoteRef:
-      key: name:pocket-id
-      property: oidc_client_secret
+      key: name:homelab
+      property: pocket_id_oidc_client_secret
       version: latest_enabled
 ---
 apiVersion: external-secrets.io/v1
@@ -67,8 +67,8 @@ spec:
   data:
   - secretKey: webhook_url
     remoteRef:
-      key: name:alertmanager
-      property: discord_webhook_url
+      key: name:homelab
+      property: alertmanager_discord_webhook_url
       version: latest_enabled
 ---
 apiVersion: source.toolkit.fluxcd.io/v1

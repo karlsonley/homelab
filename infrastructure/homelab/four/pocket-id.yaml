@@ -82,8 +82,8 @@ spec:
   data:
   - secretKey: encryption_key
     remoteRef:
-      key: name:pocket-id
-      property: encryption_key
+      key: name:homelab
+      property: pocket_id_encryption_key
       version: latest_enabled
 ---
 apiVersion: apps/v1
