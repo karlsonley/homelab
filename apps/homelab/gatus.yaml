@@ -156,6 +156,11 @@ data:
         group: Applications
         url: "https://dawarich.sonley.dev"
         <<: *defaults
+
+      - name: Homebox
+        group: Applications
+        url: "https://homebox.sonley.dev/api/v1/status"
+        <<: *defaults
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
