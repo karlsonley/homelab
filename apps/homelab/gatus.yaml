@@ -1,0 +1,347 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gatus
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: gatus-discord
+  namespace: gatus
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: gatus-discord
+    template:
+      type: Opaque
+      data:
+        webhook_url: "{{ .webhook_url }}"
+  data:
+  - secretKey: webhook_url
+    remoteRef:
+      key: name:homelab
+      property: gatus_discord_webhook_url
+      version: latest_enabled
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-config
+  namespace: gatus
+data:
+  config.yaml: |
+    web:
+      port: 8080
+
+    ui:
+      title: "Homelab Status"
+      header: "Service Health"
+      logo: "https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/gatus.svg"
+      link: "https://status.sonley.dev"
+
+    alerting:
+      discord:
+        webhook-url: "${DISCORD_WEBHOOK_URL}"
+        title: "Homelab Status"
+        default-alert:
+          enabled: true
+          failure-threshold: 3
+          success-threshold: 2
+          send-on-resolved: true
+
+    storage:
+      type: sqlite
+      path: /data/data.db
+
+    connectivity:
+      checker:
+        target: 1.1.1.1:53
+        interval: 1m
+
+    # Default conditions for HTTP endpoints
+    default-endpoint: &defaults
+      interval: 5m
+      conditions:
+        - "[STATUS] >= 200"
+        - "[STATUS] < 400"
+        - "[RESPONSE_TIME] < 5000"
+      alerts:
+        - type: discord
+
+    endpoints:
+      # Infrastructure
+      - name: Traefik
+        group: Infrastructure
+        url: "https://traefik.sonley.dev/dashboard/"
+        <<: *defaults
+
+      - name: Pocket-ID
+        group: Infrastructure
+        url: "https://pocket-id.sonley.dev/.well-known/openid-configuration"
+        <<: *defaults
+
+      - name: Blocky DNS
+        group: Infrastructure
+        url: "10.0.2.201:53"
+        interval: 2m
+        dns:
+          query-name: "cloudflare.com"
+          query-type: "A"
+        conditions:
+          - "[DNS_RCODE] == NOERROR"
+        alerts:
+          - type: discord
+
+      - name: Grafana
+        group: Infrastructure
+        url: "https://grafana.sonley.dev/api/health"
+        <<: *defaults
+
+      - name: Prometheus
+        group: Infrastructure
+        url: "https://prometheus.sonley.dev/-/healthy"
+        <<: *defaults
+
+      - name: Alertmanager
+        group: Infrastructure
+        url: "https://alertmanager.sonley.dev/-/healthy"
+        <<: *defaults
+
+      - name: Longhorn
+        group: Infrastructure
+        url: "https://longhorn.sonley.dev"
+        <<: *defaults
+
+      - name: Homepage
+        group: Infrastructure
+        url: "https://homepage.sonley.dev"
+        <<: *defaults
+
+      # Applications
+      - name: Home Assistant
+        group: Applications
+        url: "https://home-assistant.sonley.dev"
+        <<: *defaults
+
+      - name: Immich
+        group: Applications
+        url: "https://immich.sonley.dev/api/server/ping"
+        <<: *defaults
+
+      - name: Linkwarden
+        group: Applications
+        url: "https://linkwarden.sonley.dev"
+        <<: *defaults
+
+      - name: Mealie
+        group: Applications
+        url: "https://mealie.sonley.dev/api/app/about"
+        <<: *defaults
+
+      - name: N8N
+        group: Applications
+        url: "https://n8n.sonley.dev/healthz"
+        <<: *defaults
+
+      - name: Ollama WebUI
+        group: Applications
+        url: "https://ollama.sonley.dev/health"
+        <<: *defaults
+
+      - name: Dawarich
+        group: Applications
+        url: "https://dawarich.sonley.dev"
+        <<: *defaults
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gatus-data
+  namespace: gatus
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: gatus
+  namespace: flux-system
+spec:
+  image: ghcr.io/twin/gatus
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: gatus
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: gatus
+  filterTags:
+    pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
+    extract: '$version'
+  policy:
+    semver:
+      range: ">=5.0.0 <6.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: gatus
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(gatus): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab/gatus.yaml
+    strategy: Setters
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatus
+  namespace: gatus
+  labels:
+    app: gatus
+  annotations:
+    configmap.reloader.stakater.com/reload: "gatus-config"
+    secret.reloader.stakater.com/reload: "gatus-discord"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gatus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: gatus
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: gatus
+        image: ghcr.io/twin/gatus:v5.34.0 # {"$imagepolicy": "flux-system:gatus"}
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: DISCORD_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: gatus-discord
+              key: webhook_url
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: config
+          mountPath: /config/config.yaml
+          subPath: config.yaml
+        - name: data
+          mountPath: /data
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      volumes:
+      - name: config
+        configMap:
+          name: gatus-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: gatus-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatus
+  namespace: gatus
+  labels:
+    app: gatus
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: gatus
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gatus
+  namespace: gatus
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Status"
+    gethomepage.dev/description: "Service Health"
+    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/icon: "gatus.png"
+    gethomepage.dev/href: "https://status.sonley.dev"
+    gethomepage.dev/pod-selector: "app=gatus"
+    gethomepage.dev/widget.type: "gatus"
+    gethomepage.dev/widget.url: "http://gatus.gatus:8080"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`status.sonley.dev`)
+    middlewares:
+      - name: oidc-auth
+        namespace: traefik
+    services:
+    - kind: Service
+      name: gatus
+      namespace: gatus
+      port: 8080
