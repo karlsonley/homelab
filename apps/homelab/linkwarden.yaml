@@ -261,10 +261,10 @@ spec:
           mountPath: /data/data
         resources:
           requests:
-            memory: "1Gi"
+            memory: "2Gi"
             cpu: "250m"
           limits:
-            memory: "2Gi"
+            memory: "4Gi"
             cpu: "1000m"
       volumes:
       - name: data
