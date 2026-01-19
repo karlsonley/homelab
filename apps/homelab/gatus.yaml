@@ -64,7 +64,7 @@ data:
 
     # Default conditions for HTTP endpoints
     default-endpoint: &defaults
-      interval: 5m
+      interval: 1m
       conditions:
         - "[STATUS] >= 200"
         - "[STATUS] < 400"
@@ -87,7 +87,7 @@ data:
       - name: Blocky DNS
         group: Infrastructure
         url: "10.0.2.201:53"
-        interval: 2m
+        interval: 1m
         dns:
           query-name: "cloudflare.com"
           query-type: "A"
