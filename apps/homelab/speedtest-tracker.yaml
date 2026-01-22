@@ -1,0 +1,218 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: speedtest-tracker
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest-tracker
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: speedtest-tracker
+    template:
+      type: Opaque
+      data:
+        app_key: "{{ .app_key }}"
+  data:
+  - secretKey: app_key
+    remoteRef:
+      key: name:homelab
+      property: speedtest_tracker_app_key
+      version: latest_enabled
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: speedtest-tracker-config
+  namespace: speedtest-tracker
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: speedtest-tracker
+  namespace: flux-system
+spec:
+  image: lscr.io/linuxserver/speedtest-tracker
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: speedtest-tracker
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: speedtest-tracker
+  filterTags:
+    pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
+    extract: '$version'
+  policy:
+    semver:
+      range: ">=1.0.0 <2.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: speedtest-tracker
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(speedtest-tracker): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab/speedtest-tracker.yaml
+    strategy: Setters
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest-tracker
+  labels:
+    app: speedtest-tracker
+  annotations:
+    secret.reloader.stakater.com/reload: "speedtest-tracker"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: speedtest-tracker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: speedtest-tracker
+    spec:
+      containers:
+      - name: speedtest-tracker
+        image: lscr.io/linuxserver/speedtest-tracker:1.13.5 # {"$imagepolicy": "flux-system:speedtest-tracker"}
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Europe/Amsterdam"
+        - name: APP_KEY
+          valueFrom:
+            secretKeyRef:
+              name: speedtest-tracker
+              key: app_key
+        - name: APP_URL
+          value: "https://speedtest.sonley.dev"
+        - name: DB_CONNECTION
+          value: "sqlite"
+        - name: SPEEDTEST_SCHEDULE
+          value: "0 */6 * * *"
+        - name: DISPLAY_TIMEZONE
+          value: "Europe/Amsterdam"
+        - name: PRUNE_RESULTS_OLDER_THAN
+          value: "365"
+        - name: PUBLIC_DASHBOARD
+          value: "true"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        livenessProbe:
+          httpGet:
+            path: /api/healthcheck
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /api/healthcheck
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: speedtest-tracker-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest-tracker
+  labels:
+    app: speedtest-tracker
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: speedtest-tracker
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest-tracker
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Speedtest Tracker"
+    gethomepage.dev/description: "Internet Performance"
+    gethomepage.dev/group: "Widgets"
+    gethomepage.dev/icon: "speedtest-tracker.png"
+    gethomepage.dev/href: "https://speedtest.sonley.dev"
+    gethomepage.dev/pod-selector: "app=speedtest-tracker"
+    gethomepage.dev/widget.type: "speedtest"
+    gethomepage.dev/widget.url: "http://speedtest-tracker.speedtest-tracker:80"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - kind: Rule
+    match: Host(`speedtest.sonley.dev`)
+    middlewares:
+      - name: oidc-auth
+        namespace: traefik
+    services:
+    - kind: Service
+      name: speedtest-tracker
+      namespace: speedtest-tracker
+      port: 80
