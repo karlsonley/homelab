@@ -105,6 +105,7 @@ data:
     color: slate
     headerStyle: clean
     statusStyle: dot
+    useEqualHeights: true
     layout:
       Applications:
         style: row
@@ -112,7 +113,7 @@ data:
       Infrastructure:
         style: row
         columns: 4
-      Monitoring:
+      Widgets:
         style: row
         columns: 4
   widgets.yaml: |

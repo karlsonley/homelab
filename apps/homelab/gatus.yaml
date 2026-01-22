@@ -161,6 +161,11 @@ data:
         group: Applications
         url: "https://homebox.sonley.dev/api/v1/status"
         <<: *defaults
+
+      - name: Speedtest Tracker
+        group: Monitoring
+        url: "https://speedtest.sonley.dev/api/healthcheck"
+        <<: *defaults
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -330,7 +335,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Status"
     gethomepage.dev/description: "Service Health"
-    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/group: "Widgets"
     gethomepage.dev/icon: "gatus.png"
     gethomepage.dev/href: "https://status.sonley.dev"
     gethomepage.dev/pod-selector: "app=gatus"

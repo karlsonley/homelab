@@ -269,7 +269,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Prometheus"
     gethomepage.dev/description: "Metrics"
-    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/group: "Widgets"
     gethomepage.dev/icon: "prometheus.png"
     gethomepage.dev/href: "https://prometheus.sonley.dev"
     gethomepage.dev/widget.type: "prometheus"
