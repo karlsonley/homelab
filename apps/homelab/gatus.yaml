@@ -52,6 +52,15 @@ data:
           failure-threshold: 3
           success-threshold: 2
           send-on-resolved: true
+      ntfy:
+        url: "http://ntfy.ntfy.svc.cluster.local"
+        topic: "homelab-alerts"
+        priority: 4
+        default-alert:
+          enabled: true
+          failure-threshold: 3
+          success-threshold: 2
+          send-on-resolved: true
 
     storage:
       type: sqlite
@@ -71,6 +80,7 @@ data:
         - "[RESPONSE_TIME] < 5000"
       alerts:
         - type: discord
+        - type: ntfy
 
     endpoints:
       # Infrastructure
@@ -95,6 +105,7 @@ data:
           - "[DNS_RCODE] == NOERROR"
         alerts:
           - type: discord
+          - type: ntfy
 
       - name: Grafana
         group: Infrastructure
@@ -160,6 +171,11 @@ data:
       - name: Homebox
         group: Applications
         url: "https://homebox.sonley.dev/api/v1/status"
+        <<: *defaults
+
+      - name: ntfy
+        group: Applications
+        url: "https://ntfy.sonley.dev/v1/health"
         <<: *defaults
 
       - name: Speedtest Tracker
