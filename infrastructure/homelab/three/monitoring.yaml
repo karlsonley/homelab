@@ -154,6 +154,9 @@ spec:
               **Description:** {{ .Annotations.description }}
               {{- end }}
               {{ end }}
+          webhook_configs:
+          - url: "http://ntfy.ntfy.svc.cluster.local/homelab-alerts?template=alertmanager"
+            send_resolved: true
         - name: "null"
         templates:
         - '/etc/alertmanager/config/*.tmpl'
