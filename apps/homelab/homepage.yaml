@@ -113,9 +113,12 @@ data:
       Infrastructure:
         style: row
         columns: 4
+      Monitoring:
+        style: row
+        columns: 4
       Widgets:
         style: row
-        columns: 3
+        columns: 4
   widgets.yaml: |
     - kubernetes:
         cluster:
