@@ -132,9 +132,7 @@ spec:
           - receiver: ntfy-flux
             matchers:
             - source = "flux"
-            continue: true
           - receiver: ntfy-prometheus
-            continue: true
         receivers:
         - name: ntfy-flux
           discord_configs:
