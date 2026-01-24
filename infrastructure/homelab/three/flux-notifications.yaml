@@ -17,6 +17,8 @@ spec:
   providerRef:
     name: alertmanager
   eventSeverity: info
+  eventMetadata:
+    source: flux
   eventSources:
     - kind: GitRepository
       name: '*'

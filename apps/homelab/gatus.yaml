@@ -54,7 +54,7 @@ data:
           send-on-resolved: true
       ntfy:
         url: "http://ntfy.ntfy.svc.cluster.local"
-        topic: "homelab-alerts"
+        topic: "gatus"
         priority: 4
         default-alert:
           enabled: true

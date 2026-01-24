@@ -110,13 +110,17 @@ spec:
     name: alertmanager-discord
     valuesKey: webhook_url
     targetPath: alertmanager.config.receivers[0].discord_configs[0].webhook_url
+  - kind: Secret
+    name: alertmanager-discord
+    valuesKey: webhook_url
+    targetPath: alertmanager.config.receivers[1].discord_configs[0].webhook_url
   values:
     alertmanager:
       alertmanagerSpec:
         replicas: 3
       config:
         route:
-          receiver: discord
+          receiver: ntfy-prometheus
           group_by: ['alertname', 'cluster', 'service']
           group_wait: 10s
           group_interval: 1m
@@ -125,10 +129,37 @@ spec:
           - receiver: "null"
             matchers:
             - alertname = "Watchdog"
-          - receiver: discord
+          - receiver: ntfy-flux
+            matchers:
+            - source = "flux"
+            continue: true
+          - receiver: ntfy-prometheus
             continue: true
         receivers:
-        - name: discord
+        - name: ntfy-flux
+          discord_configs:
+          - title: |
+              [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+            message: |
+              {{ range .Alerts }}
+              **Alert:** {{ .Labels.alertname }}
+              {{- if .Labels.name }}
+              **Resource:** {{ .Labels.name }} ({{ .Labels.kind }})
+              {{- end }}
+              {{- if .Labels.namespace }}
+              **Namespace:** {{ .Labels.namespace }}
+              {{- end }}
+              {{- if .Annotations.summary }}
+              **Summary:** {{ .Annotations.summary }}
+              {{- end }}
+              {{- if .Annotations.message }}
+              **Message:** {{ .Annotations.message }}
+              {{- end }}
+              {{ end }}
+          webhook_configs:
+          - url: "http://ntfy.ntfy.svc.cluster.local/flux?template=alertmanager"
+            send_resolved: true
+        - name: ntfy-prometheus
           discord_configs:
           - title: |
               [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
@@ -155,7 +186,7 @@ spec:
               {{- end }}
               {{ end }}
           webhook_configs:
-          - url: "http://ntfy.ntfy.svc.cluster.local/homelab-alerts?template=alertmanager"
+          - url: "http://ntfy.ntfy.svc.cluster.local/prometheus?template=alertmanager"
             send_resolved: true
         - name: "null"
         templates:
