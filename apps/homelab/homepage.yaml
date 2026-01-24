@@ -118,7 +118,7 @@ data:
         columns: 4
       Widgets:
         style: row
-        columns: 4
+        columns: 3
   widgets.yaml: |
     - kubernetes:
         cluster:
