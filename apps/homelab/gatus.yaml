@@ -4,29 +4,6 @@ kind: Namespace
 metadata:
   name: gatus
 ---
-apiVersion: external-secrets.io/v1
-kind: ExternalSecret
-metadata:
-  name: gatus-discord
-  namespace: gatus
-spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    kind: ClusterSecretStore
-    name: scaleway-secret-manager
-  target:
-    name: gatus-discord
-    template:
-      type: Opaque
-      data:
-        webhook_url: "{{ .webhook_url }}"
-  data:
-  - secretKey: webhook_url
-    remoteRef:
-      key: name:homelab
-      property: gatus_discord_webhook_url
-      version: latest_enabled
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -44,14 +21,6 @@ data:
       link: "https://status.sonley.dev"
 
     alerting:
-      discord:
-        webhook-url: "${DISCORD_WEBHOOK_URL}"
-        title: "Homelab Status"
-        default-alert:
-          enabled: true
-          failure-threshold: 3
-          success-threshold: 2
-          send-on-resolved: true
       ntfy:
         url: "http://ntfy.ntfy.svc.cluster.local"
         topic: "gatus"
@@ -79,7 +48,6 @@ data:
         - "[STATUS] < 400"
         - "[RESPONSE_TIME] < 5000"
       alerts:
-        - type: discord
         - type: ntfy
 
     endpoints:
@@ -104,7 +72,6 @@ data:
         conditions:
           - "[DNS_RCODE] == NOERROR"
         alerts:
-          - type: discord
           - type: ntfy
 
       - name: Grafana
@@ -255,7 +222,6 @@ metadata:
     app: gatus
   annotations:
     configmap.reloader.stakater.com/reload: "gatus-config"
-    secret.reloader.stakater.com/reload: "gatus-discord"
 spec:
   replicas: 1
   selector:
@@ -281,12 +247,6 @@ spec:
         ports:
         - containerPort: 8080
           name: http
-        env:
-        - name: DISCORD_WEBHOOK_URL
-          valueFrom:
-            secretKeyRef:
-              name: gatus-discord
-              key: webhook_url
         securityContext:
           allowPrivilegeEscalation: false
           runAsNonRoot: true
