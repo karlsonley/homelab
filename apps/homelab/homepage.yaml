@@ -146,6 +146,8 @@ metadata:
   namespace: homepage
   labels:
     app: homepage
+  annotations:
+    configmap.reloader.stakater.com/reload: "homepage-config"
 spec:
   replicas: 1
   selector:
