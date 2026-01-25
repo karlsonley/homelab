@@ -232,7 +232,7 @@ spec:
             - ALL
       containers:
       - name: mail-archiver
-        image: s1t5/mailarchiver:2601.2 # {"$imagepolicy": "flux-system:mail-archiver"}
+        image: s1t5/mailarchiver:2601.3 # {"$imagepolicy": "flux-system:mail-archiver"}
         ports:
         - containerPort: 5000
           name: http
