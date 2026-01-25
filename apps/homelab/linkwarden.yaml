@@ -90,7 +90,7 @@ metadata:
   namespace: linkwarden
 spec:
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  imageName: ghcr.io/cloudnative-pg/postgresql:17
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
