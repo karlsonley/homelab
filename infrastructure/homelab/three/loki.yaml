@@ -71,6 +71,12 @@ spec:
     lokiCanary:
       extraArgs:
         - -interval=60s
+    chunksCache:
+      enabled: true
+      allocatedMemory: 512
+    resultsCache:
+      enabled: true
+      allocatedMemory: 256
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
