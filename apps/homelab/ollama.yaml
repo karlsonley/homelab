@@ -360,7 +360,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Ollama"
     gethomepage.dev/description: "LLM Interface"
-    gethomepage.dev/group: "Applications"
+    gethomepage.dev/group: "More Applications"
     gethomepage.dev/icon: "ollama.png"
     gethomepage.dev/href: "https://ollama.sonley.dev"
 spec:

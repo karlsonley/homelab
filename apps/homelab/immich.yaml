@@ -610,6 +610,9 @@ metadata:
     gethomepage.dev/icon: "immich.png"
     gethomepage.dev/href: "https://immich.sonley.dev"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=immich-server"
+    gethomepage.dev/widget.type: "immich"
+    gethomepage.dev/widget.url: "http://immich-server.immich:2283"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_IMMICH_API_KEY}}"
 spec:
   entryPoints:
     - websecure

@@ -229,6 +229,9 @@ metadata:
     gethomepage.dev/group: "Applications"
     gethomepage.dev/icon: "mealie.png"
     gethomepage.dev/href: "https://mealie.sonley.dev"
+    gethomepage.dev/widget.type: "mealie"
+    gethomepage.dev/widget.url: "http://mealie.mealie:9000"
+    gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_MEALIE_API_KEY}}"
 spec:
   entryPoints:
     - websecure

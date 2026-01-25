@@ -362,7 +362,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Mail Archiver"
     gethomepage.dev/description: "Email Archiving Platform"
-    gethomepage.dev/group: "Applications"
+    gethomepage.dev/group: "More Applications"
     gethomepage.dev/icon: "mail-archiver.png"
     gethomepage.dev/href: "https://mail-archiver.sonley.dev"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=mail-archiver"

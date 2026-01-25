@@ -50,6 +50,35 @@ kind: Namespace
 metadata:
   name: homepage
 ---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: homepage-api-keys
+  namespace: homepage
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: homepage-api-keys
+    template:
+      type: Opaque
+      data:
+        immich-api-key: "{{ .immich_api_key }}"
+        mealie-api-key: "{{ .mealie_api_key }}"
+  data:
+  - secretKey: immich_api_key
+    remoteRef:
+      key: name:homelab
+      property: immich_homepage_api_key
+      version: latest_enabled
+  - secretKey: mealie_api_key
+    remoteRef:
+      key: name:homelab
+      property: mealie_homepage_api_key
+      version: latest_enabled
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -108,6 +137,9 @@ data:
     useEqualHeights: true
     layout:
       Applications:
+        style: row
+        columns: 2
+      More Applications:
         style: row
         columns: 4
       Infrastructure:
@@ -200,6 +232,18 @@ spec:
           env:
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: "homepage.sonley.dev"
+            - name: HOMEPAGE_VAR_IMMICH_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-api-keys
+                  key: immich-api-key
+                  optional: true
+            - name: HOMEPAGE_VAR_MEALIE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: homepage-api-keys
+                  key: mealie-api-key
+                  optional: true
           volumeMounts:
             - name: config
               mountPath: /app/config

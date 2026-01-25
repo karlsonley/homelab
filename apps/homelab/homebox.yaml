@@ -219,7 +219,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Homebox"
     gethomepage.dev/description: "Home Inventory"
-    gethomepage.dev/group: "Applications"
+    gethomepage.dev/group: "More Applications"
     gethomepage.dev/icon: "homebox.png"
     gethomepage.dev/href: "https://homebox.sonley.dev"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=homebox"

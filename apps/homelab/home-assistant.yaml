@@ -100,7 +100,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Home Assistant"
     gethomepage.dev/description: "Home Automation"
-    gethomepage.dev/group: "Applications"
+    gethomepage.dev/group: "More Applications"
     gethomepage.dev/icon: "home-assistant.png"
     gethomepage.dev/href: "https://home-assistant.sonley.dev"
 spec:
