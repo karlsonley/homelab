@@ -145,6 +145,11 @@ data:
         url: "https://ntfy.sonley.dev/v1/health"
         <<: *defaults
 
+      - name: Mail Archiver
+        group: Applications
+        url: "https://mail-archiver.sonley.dev"
+        <<: *defaults
+
       - name: Speedtest Tracker
         group: Monitoring
         url: "https://speedtest.sonley.dev/api/healthcheck"

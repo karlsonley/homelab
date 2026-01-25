@@ -1,0 +1,379 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mail-archiver
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: mail-archiver-db-password
+  namespace: mail-archiver
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: mail-archiver-db-password
+    template:
+      data:
+        username: "mailarchiver"
+        password: "{{ .db_password }}"
+  data:
+  - secretKey: db_password
+    remoteRef:
+      key: name:homelab
+      property: mail_archiver_db_password
+      version: latest_enabled
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: mail-archiver-secrets
+  namespace: mail-archiver
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: mail-archiver-secrets
+    template:
+      data:
+        connection_string: "Host=mail-archiver-postgres-rw;Port=5432;Database=mailarchiver;Username=mailarchiver;Password={{ .db_password }}"
+        admin_username: "{{ .admin_username }}"
+        admin_password: "{{ .admin_password }}"
+        oidc_client_id: "{{ .oidc_client_id }}"
+        oidc_client_secret: "{{ .oidc_client_secret }}"
+        admin_email: "{{ .admin_email }}"
+  data:
+  - secretKey: db_password
+    remoteRef:
+      key: name:homelab
+      property: mail_archiver_db_password
+      version: latest_enabled
+  - secretKey: admin_username
+    remoteRef:
+      key: name:homelab
+      property: mail_archiver_admin_username
+      version: latest_enabled
+  - secretKey: admin_password
+    remoteRef:
+      key: name:homelab
+      property: mail_archiver_admin_password
+      version: latest_enabled
+  - secretKey: oidc_client_id
+    remoteRef:
+      key: name:homelab
+      property: pocket_id_oidc_client_id
+      version: latest_enabled
+  - secretKey: oidc_client_secret
+    remoteRef:
+      key: name:homelab
+      property: pocket_id_oidc_client_secret
+      version: latest_enabled
+  - secretKey: admin_email
+    remoteRef:
+      key: name:homelab
+      property: mail_archiver_admin_email
+      version: latest_enabled
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: mail-archiver-postgres
+  namespace: mail-archiver
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:17
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 10Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: mailarchiver
+      owner: mailarchiver
+      secret:
+        name: mail-archiver-db-password
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mail-archiver-data-nfs
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: mail-archiver-nfs
+  mountOptions:
+    - nfsvers=3
+    - hard
+    - timeo=600
+    - retrans=2
+    - actimeo=30
+    - lookupcache=positive
+  nfs:
+    server: 10.0.2.100
+    path: /volume1/mail-archiver/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mail-archiver-data
+  namespace: mail-archiver
+  annotations:
+    velero.io/exclude-from-backup: "true"
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: mail-archiver-nfs
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: mail-archiver-data-nfs
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: mail-archiver
+  namespace: flux-system
+spec:
+  image: s1t5/mailarchiver
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: mail-archiver
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: mail-archiver
+  filterTags:
+    pattern: '^(?P<version>[0-9]{4}\.[0-9]+)$'
+    extract: '$version'
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: mail-archiver
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(mail-archiver): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab/mail-archiver.yaml
+    strategy: Setters
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mail-archiver
+  namespace: mail-archiver
+  annotations:
+    secret.reloader.stakater.com/reload: "mail-archiver-secrets"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mail-archiver
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mail-archiver
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:17-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h mail-archiver-postgres-rw -p 5432 -U mailarchiver; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready!"
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      containers:
+      - name: mail-archiver
+        image: s1t5/mailarchiver:2601.2 # {"$imagepolicy": "flux-system:mail-archiver"}
+        ports:
+        - containerPort: 5000
+          name: http
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: mail-archiver-secrets
+              key: connection_string
+        - name: Authentication__Username
+          valueFrom:
+            secretKeyRef:
+              name: mail-archiver-secrets
+              key: admin_username
+        - name: Authentication__Password
+          valueFrom:
+            secretKeyRef:
+              name: mail-archiver-secrets
+              key: admin_password
+        - name: TimeZone__DisplayTimeZoneId
+          value: "America/Los_Angeles"
+        - name: OAuth__Enabled
+          value: "true"
+        - name: OAuth__Authority
+          value: "https://pocket-id.sonley.dev"
+        - name: OAuth__ClientId
+          valueFrom:
+            secretKeyRef:
+              name: mail-archiver-secrets
+              key: oidc_client_id
+        - name: OAuth__ClientSecret
+          valueFrom:
+            secretKeyRef:
+              name: mail-archiver-secrets
+              key: oidc_client_secret
+        - name: OAuth__ClientScopes__0
+          value: "openid"
+        - name: OAuth__ClientScopes__1
+          value: "profile"
+        - name: OAuth__ClientScopes__2
+          value: "email"
+        - name: OAuth__DisablePasswordLogin
+          value: "true"
+        - name: OAuth__AutoRedirect
+          value: "true"
+        - name: OAuth__AdminEmails__0
+          valueFrom:
+            secretKeyRef:
+              name: mail-archiver-secrets
+              key: admin_email
+        startupProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: data-protection-keys
+          mountPath: /app/DataProtection-Keys
+        - name: logs
+          mountPath: /app/logs
+        - name: data
+          mountPath: /app/uploads
+          subPath: uploads
+        - name: data
+          mountPath: /app/exports
+          subPath: exports
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      volumes:
+      - name: data-protection-keys
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+      - name: data
+        persistentVolumeClaim:
+          claimName: mail-archiver-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mail-archiver
+  namespace: mail-archiver
+  labels:
+    app.kubernetes.io/name: mail-archiver
+spec:
+  selector:
+    app.kubernetes.io/name: mail-archiver
+  ports:
+  - port: 5000
+    targetPort: 5000
+    name: http
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mail-archiver
+  namespace: mail-archiver
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Mail Archiver"
+    gethomepage.dev/description: "Email Archiving Platform"
+    gethomepage.dev/group: "Applications"
+    gethomepage.dev/icon: "mail-archiver.png"
+    gethomepage.dev/href: "https://mail-archiver.sonley.dev"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=mail-archiver"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`mail-archiver.sonley.dev`)
+      services:
+        - kind: Service
+          name: mail-archiver
+          namespace: mail-archiver
+          port: 5000
