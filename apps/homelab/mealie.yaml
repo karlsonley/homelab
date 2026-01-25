@@ -232,6 +232,7 @@ metadata:
     gethomepage.dev/widget.type: "mealie"
     gethomepage.dev/widget.url: "http://mealie.mealie:9000"
     gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_MEALIE_API_KEY}}"
+    gethomepage.dev/widget.version: "2"
 spec:
   entryPoints:
     - websecure
