@@ -126,6 +126,13 @@ spec:
               key: encryption_key
         image: ghcr.io/pocket-id/pocket-id:v2.2.0 # {"$imagepolicy": "flux-system:pocket-id"}
         name: pocket-id
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         ports:
         - containerPort: 1411
         volumeMounts:

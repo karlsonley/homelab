@@ -255,6 +255,13 @@ spec:
       containers:
       - name: redis
         image: docker.io/valkey/valkey:8.1.5-alpine # {"$imagepolicy": "flux-system:valkey"}
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         ports:
         - containerPort: 6379
           name: redis
@@ -339,6 +346,13 @@ spec:
       containers:
       - name: machine-learning
         image: ghcr.io/immich-app/immich-machine-learning:v2.5.0 # {"$imagepolicy": "flux-system:immich-machine-learning"}
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "2Gi"
+          limits:
+            cpu: "2000m"
+            memory: "8Gi"
         ports:
         - containerPort: 3003
           name: http
@@ -452,6 +466,13 @@ spec:
       containers:
       - name: server
         image: ghcr.io/immich-app/immich-server:v2.5.0 # {"$imagepolicy": "flux-system:immich-server"}
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
         ports:
         - containerPort: 2283
           name: http
