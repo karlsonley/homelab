@@ -412,7 +412,7 @@ spec:
         resources:
           requests:
             memory: "512Mi"
-            cpu: "250m"
+            cpu: "50m"
           limits:
             memory: "1Gi"
             cpu: "1000m"
@@ -523,7 +523,7 @@ spec:
         resources:
           requests:
             memory: "512Mi"
-            cpu: "250m"
+            cpu: "50m"
           limits:
             memory: "1Gi"
             cpu: "1000m"
