@@ -257,7 +257,7 @@ spec:
         image: docker.io/valkey/valkey:8.1.5-alpine # {"$imagepolicy": "flux-system:valkey"}
         resources:
           requests:
-            cpu: "50m"
+            cpu: "25m"
             memory: "128Mi"
           limits:
             cpu: "500m"
@@ -348,7 +348,7 @@ spec:
         image: ghcr.io/immich-app/immich-machine-learning:v2.5.2 # {"$imagepolicy": "flux-system:immich-machine-learning"}
         resources:
           requests:
-            cpu: "500m"
+            cpu: "100m"
             memory: "2Gi"
           limits:
             cpu: "2000m"
@@ -468,7 +468,7 @@ spec:
         image: ghcr.io/immich-app/immich-server:v2.5.2 # {"$imagepolicy": "flux-system:immich-server"}
         resources:
           requests:
-            cpu: "250m"
+            cpu: "50m"
             memory: "512Mi"
           limits:
             cpu: "1000m"
