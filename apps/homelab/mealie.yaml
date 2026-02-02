@@ -118,7 +118,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: mealie
-        image: ghcr.io/mealie-recipes/mealie:v3.9.2 # {"$imagepolicy": "flux-system:mealie"}
+        image: ghcr.io/mealie-recipes/mealie:v3.10.0 # {"$imagepolicy": "flux-system:mealie"}
         ports:
         - containerPort: 9000
           name: http
