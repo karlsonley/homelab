@@ -13,7 +13,7 @@ metadata:
   name: vmware-tanzu
   namespace: flux-system
 spec:
-  interval: 30m
+  interval: 1h
   url: https://vmware-tanzu.github.io/helm-charts
 ---
 apiVersion: external-secrets.io/v1
@@ -59,7 +59,7 @@ metadata:
   namespace: flux-system
 spec:
   image: docker.io/bitnamilegacy/kubectl
-  interval: 10m
+  interval: 1h
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
@@ -80,7 +80,7 @@ metadata:
   namespace: flux-system
 spec:
   image: velero/velero-plugin-for-aws
-  interval: 10m
+  interval: 1h
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
