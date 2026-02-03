@@ -1,0 +1,182 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: glance
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: glance-config
+  namespace: glance
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: glance-config
+  data:
+  - secretKey: glance.yml
+    remoteRef:
+      key: name:glance
+      version: latest_enabled
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: glance
+  namespace: flux-system
+spec:
+  image: glanceapp/glance
+  interval: 10m
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: glance
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: glance
+  filterTags:
+    pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
+    extract: '$version'
+  policy:
+    semver:
+      range: ">=0.8.0 <1.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: glance
+  namespace: flux-system
+spec:
+  interval: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(glance): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab/glance.yaml
+    strategy: Setters
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: glance
+  namespace: glance
+  annotations:
+    secret.reloader.stakater.com/reload: "glance-config"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: glance
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: glance
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: glance
+          image: glanceapp/glance:v0.8.4 # {"$imagepolicy": "flux-system:glance"}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+              - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      volumes:
+        - name: config
+          secret:
+            secretName: glance-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: glance
+  namespace: glance
+  labels:
+    app.kubernetes.io/name: glance
+spec:
+  selector:
+    app.kubernetes.io/name: glance
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: glance
+  namespace: glance
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Glance"
+    gethomepage.dev/description: "Self-hosted dashboard"
+    gethomepage.dev/group: "More Applications"
+    gethomepage.dev/icon: "glance.png"
+    gethomepage.dev/href: "https://glance.sonley.dev"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=glance"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`glance.sonley.dev`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: glance
+          namespace: glance
+          port: 8080
