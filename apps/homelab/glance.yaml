@@ -29,7 +29,7 @@ metadata:
   namespace: flux-system
 spec:
   image: glanceapp/glance
-  interval: 10m
+  interval: 1h
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
