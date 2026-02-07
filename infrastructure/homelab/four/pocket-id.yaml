@@ -57,7 +57,7 @@ metadata:
   namespace: pocket-id
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   storageClassName: longhorn
   resources:
     requests:
