@@ -128,7 +128,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: ntfy
-        image: binwiederhier/ntfy:v2.16.0 # {"$imagepolicy": "flux-system:ntfy"}
+        image: binwiederhier/ntfy:v2.17.0 # {"$imagepolicy": "flux-system:ntfy"}
         args:
         - serve
         ports:
