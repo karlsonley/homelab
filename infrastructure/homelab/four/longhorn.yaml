@@ -33,6 +33,8 @@ spec:
         name: longhorn
       interval: 5m
   values:
+    defaultSettings:
+      defaultReplicaCount: 2
     metrics:
       serviceMonitor:
         enabled: true
