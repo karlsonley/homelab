@@ -33,8 +33,10 @@ spec:
         name: longhorn
       interval: 5m
   values:
-    defaultSettings:
-      defaultReplicaCount: 2
+    image:
+      longhorn:
+        instanceManager:
+          tag: v1.11.0-hotfix-1
     metrics:
       serviceMonitor:
         enabled: true
