@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bentopdf
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: bentopdf
+  namespace: flux-system
+spec:
+  image: ghcr.io/alam00000/bentopdf-simple
+  interval: 1h
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: bentopdf
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: bentopdf
+  filterTags:
+    pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
+    extract: '$version'
+  policy:
+    semver:
+      range: ">=0.0.0 <3.0.0"
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageUpdateAutomation
+metadata:
+  name: bentopdf
+  namespace: flux-system
+spec:
+  interval: 1h
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        chore(bentopdf): update image to {{range .Updated.Images}}{{println .}}{{end}}
+    push:
+      branch: main
+  update:
+    path: ./apps/homelab/bentopdf.yaml
+    strategy: Setters
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bentopdf
+  namespace: bentopdf
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bentopdf
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bentopdf
+    spec:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: bentopdf
+          image: ghcr.io/alam00000/bentopdf-simple:v2.2.1 # {"$imagepolicy": "flux-system:bentopdf"}
+          ports:
+            - containerPort: 8080
+              name: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      volumes:
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bentopdf
+  namespace: bentopdf
+  labels:
+    app.kubernetes.io/name: bentopdf
+spec:
+  selector:
+    app.kubernetes.io/name: bentopdf
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: bentopdf
+  namespace: bentopdf
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "BentoPDF"
+    gethomepage.dev/description: "PDF Toolkit"
+    gethomepage.dev/group: "More Applications"
+    gethomepage.dev/icon: "si-adobeacrobatreader"
+    gethomepage.dev/href: "https://bentopdf.sonley.dev"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=bentopdf"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`bentopdf.sonley.dev`)
+      services:
+        - kind: Service
+          name: bentopdf
+          namespace: bentopdf
+          port: 8080

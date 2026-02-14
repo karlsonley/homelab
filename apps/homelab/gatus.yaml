@@ -150,6 +150,12 @@ data:
         url: "https://mail-archiver.sonley.dev"
         <<: *defaults
 
+
+      - name: BentoPDF
+        group: Applications
+        url: "https://bentopdf.sonley.dev"
+        <<: *defaults
+
       - name: Speedtest Tracker
         group: Monitoring
         url: "https://speedtest.sonley.dev/api/healthcheck"
