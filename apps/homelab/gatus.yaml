@@ -1,4 +1,3 @@
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -254,7 +253,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: gatus
-        image: ghcr.io/twin/gatus:v5.34.0 # {"$imagepolicy": "flux-system:gatus"}
+        image: ghcr.io/twin/gatus:v5.35.0 # {"$imagepolicy": "flux-system:gatus"}
         ports:
         - containerPort: 8080
           name: http
@@ -332,13 +331,13 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - kind: Rule
-    match: Host(`status.sonley.dev`)
-    middlewares:
-      - name: oidc-auth
-        namespace: traefik
-    services:
-    - kind: Service
-      name: gatus
-      namespace: gatus
-      port: 8080
+    - kind: Rule
+      match: Host(`status.sonley.dev`)
+      middlewares:
+        - name: oidc-auth
+          namespace: traefik
+      services:
+        - kind: Service
+          name: gatus
+          namespace: gatus
+          port: 8080
