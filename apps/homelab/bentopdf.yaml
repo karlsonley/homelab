@@ -75,7 +75,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: bentopdf
-          image: ghcr.io/alam00000/bentopdf-simple:v2.2.1 # {"$imagepolicy": "flux-system:bentopdf"}
+          image: ghcr.io/alam00000/bentopdf-simple:v2.3.1 # {"$imagepolicy": "flux-system:bentopdf"}
           ports:
             - containerPort: 8080
               name: http
