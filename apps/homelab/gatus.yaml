@@ -53,7 +53,7 @@ data:
       # Infrastructure
       - name: Traefik
         group: Infrastructure
-        url: "https://traefik.sonley.dev/dashboard/"
+        url: "http://traefik.traefik:9100/metrics"
         <<: *defaults
 
       - name: Pocket-ID
@@ -80,17 +80,17 @@ data:
 
       - name: Prometheus
         group: Infrastructure
-        url: "https://prometheus.sonley.dev/-/healthy"
+        url: "http://kube-prometheus-stack-prometheus.monitoring:9090/-/healthy"
         <<: *defaults
 
       - name: Alertmanager
         group: Infrastructure
-        url: "https://alertmanager.sonley.dev/-/healthy"
+        url: "http://kube-prometheus-stack-alertmanager.monitoring:9093/-/healthy"
         <<: *defaults
 
       - name: Longhorn
         group: Infrastructure
-        url: "https://longhorn.sonley.dev"
+        url: "http://longhorn-frontend.longhorn:80"
         <<: *defaults
 
       - name: Homepage
@@ -157,7 +157,7 @@ data:
 
       - name: Speedtest Tracker
         group: Monitoring
-        url: "https://speedtest.sonley.dev/api/healthcheck"
+        url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"
         <<: *defaults
 ---
 apiVersion: v1
