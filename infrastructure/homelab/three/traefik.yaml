@@ -196,3 +196,10 @@ spec:
         - profile
         - email
         - groups
+      Headers:
+        - Name: Remote-User
+          Source: IdToken
+          Property: email
+        - Name: Remote-Email
+          Source: IdToken
+          Property: email
