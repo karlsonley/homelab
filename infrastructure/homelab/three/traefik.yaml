@@ -198,8 +198,6 @@ spec:
         - groups
       Headers:
         - Name: Remote-User
-          Source: IdToken
-          Property: email
+          Value: "{{ .claims.email }}"
         - Name: Remote-Email
-          Source: IdToken
-          Property: email
+          Value: "{{ .claims.email }}"
