@@ -189,7 +189,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: linkwarden
-        image: ghcr.io/linkwarden/linkwarden:v2.13.5 # {"$imagepolicy": "flux-system:linkwarden"}
+        image: ghcr.io/linkwarden/linkwarden:v2.14.0 # {"$imagepolicy": "flux-system:linkwarden"}
         ports:
         - containerPort: 3000
           name: http
