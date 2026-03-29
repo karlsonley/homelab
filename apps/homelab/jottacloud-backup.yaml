@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jottacloud-backup
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: nas-ssh-credentials
+  namespace: jottacloud-backup
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: nas-ssh-credentials
+    template:
+      data:
+        username: "{{ .username }}"
+        password: "{{ .password }}"
+  data:
+  - secretKey: username
+    remoteRef:
+      key: name:homelab
+      property: nas_ssh_user
+      version: latest_enabled
+  - secretKey: password
+    remoteRef:
+      key: name:homelab
+      property: nas_ssh_password
+      version: latest_enabled
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jottacloud-backup-script
+  namespace: jottacloud-backup
+data:
+  backup.sh: |
+    #!/bin/sh
+
+    echo "=== Installing SSH tools ==="
+    apk add --no-cache openssh-client sshpass
+
+    # Write password to file to avoid shell quoting issues with sshpass
+    PASSFILE=$(mktemp)
+    printf '%s' "$NAS_SSH_PASSWORD" > "$PASSFILE"
+    trap 'rm -f "$PASSFILE"' EXIT
+
+    run_ssh() {
+      echo "=== $1 ==="
+      sshpass -f "$PASSFILE" ssh -o StrictHostKeyChecking=accept-new "$NAS_SSH_USER@10.0.2.100" "$2"
+      RC=$?
+      if [ $RC -ne 0 ]; then
+        echo "FAILED (exit code $RC): $1"
+        exit $RC
+      fi
+    }
+
+    run_ssh "Checking rclone" "rclone version"
+    run_ssh "Syncing photos" "rclone sync /volume1/photos jottacloud:nas_backup/photos --verbose --stats 1m --transfers 4 --checkers 8"
+    run_ssh "Syncing mail-archiver" "rclone sync /volume1/mail-archiver jottacloud:nas_backup/mail-archiver --verbose --stats 1m --transfers 4 --checkers 8"
+    run_ssh "Syncing immich" "rclone sync /volume1/immich jottacloud:nas_backup/immich --verbose --stats 1m --transfers 4 --checkers 8"
+
+    echo "=== Backup completed successfully ==="
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: jottacloud-backup
+  namespace: jottacloud-backup
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 21600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: jottacloud-backup
+        spec:
+          restartPolicy: Never
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+          - name: jottacloud-backup
+            image: alpine:latest
+            command: ["/bin/sh", "/scripts/backup.sh"]
+            securityContext:
+              allowPrivilegeEscalation: false
+            env:
+            - name: NAS_SSH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: nas-ssh-credentials
+                  key: username
+            - name: NAS_SSH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nas-ssh-credentials
+                  key: password
+            volumeMounts:
+            - name: script
+              mountPath: /scripts
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 128Mi
+          volumes:
+          - name: script
+            configMap:
+              name: jottacloud-backup-script
+              defaultMode: 0755
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: jottacloud-backup-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: jottacloud-backup
+    rules:
+    - alert: JottacloudBackupFailed
+      expr: |
+        kube_job_status_failed{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"} > 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Jottacloud backup job failed"
+        description: "The Jottacloud NAS backup job has failed. Check logs with: kubectl logs -n jottacloud-backup job/{{ $labels.job_name }}"
+    - alert: JottacloudBackupMissing
+      expr: |
+        time() - kube_job_status_completion_time{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"} > 172800
+      for: 1h
+      labels:
+        severity: warning
+      annotations:
+        summary: "Jottacloud backup has not completed in 48 hours"
+        description: "No successful Jottacloud backup has completed in the last 48 hours."
