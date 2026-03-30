@@ -55,8 +55,7 @@ spec:
       author:
         email: fluxcdbot@users.noreply.github.com
         name: fluxcdbot
-      messageTemplate: |
-        chore(ollama): update image to {{range .Changed.Images}}{{println .}}{{end}}
+      messageTemplate: "chore(ollama): update image"
     push:
       branch: main
   update:

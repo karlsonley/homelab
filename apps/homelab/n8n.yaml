@@ -55,8 +55,7 @@ spec:
       author:
         email: fluxcdbot@users.noreply.github.com
         name: fluxcdbot
-      messageTemplate: |
-        chore(n8n): update image to {{range .Changed.Images}}{{println .}}{{end}}
+      messageTemplate: "chore(n8n): update image"
     push:
       branch: main
   update:

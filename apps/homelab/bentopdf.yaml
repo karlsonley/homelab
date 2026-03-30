@@ -45,8 +45,7 @@ spec:
       author:
         email: fluxcdbot@users.noreply.github.com
         name: fluxcdbot
-      messageTemplate: |
-        chore(bentopdf): update image to {{range .Changed.Images}}{{println .}}{{end}}
+      messageTemplate: "chore(bentopdf): update image"
     push:
       branch: main
   update:
