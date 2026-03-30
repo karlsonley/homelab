@@ -85,7 +85,7 @@ metadata:
   namespace: mail-archiver
 spec:
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:17
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
@@ -213,7 +213,7 @@ spec:
           type: RuntimeDefault
       initContainers:
       - name: wait-for-postgres
-        image: postgres:17-alpine
+        image: postgres:18-alpine
         command:
         - sh
         - -c
