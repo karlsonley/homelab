@@ -135,6 +135,10 @@ spec:
     - alert: JottacloudBackupFailed
       expr: |
         kube_job_status_failed{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"} > 0
+        and on(job_name, namespace)
+        (kube_job_created{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"}
+          == on(namespace) group_left
+          max(kube_job_created{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"}) by (namespace))
       for: 1m
       labels:
         severity: critical
@@ -143,7 +147,7 @@ spec:
         description: "The Jottacloud NAS backup job has failed. Check logs with: kubectl logs -n jottacloud-backup job/{{ $labels.job_name }}"
     - alert: JottacloudBackupMissing
       expr: |
-        time() - kube_job_status_completion_time{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"} > 172800
+        time() - max(kube_job_status_completion_time{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"}) > 172800
       for: 1h
       labels:
         severity: warning
