@@ -115,7 +115,7 @@ spec:
     requests:
       storage: 5Gi
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: linkwarden
@@ -124,7 +124,7 @@ spec:
   image: ghcr.io/linkwarden/linkwarden
   interval: 10m
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: linkwarden
@@ -139,7 +139,7 @@ spec:
     semver:
       range: ">=2.0.0 <3.0.0"
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
   name: linkwarden

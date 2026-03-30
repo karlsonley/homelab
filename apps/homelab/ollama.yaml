@@ -16,7 +16,7 @@ spec:
     requests:
       storage: 40Gi
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: ollama
@@ -25,7 +25,7 @@ spec:
   image: docker.io/ollama/ollama
   interval: 10m
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: ollama
@@ -37,7 +37,7 @@ spec:
     semver:
       range: ">=0.0.0 <1.0.0"
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
   name: ollama
@@ -159,7 +159,7 @@ spec:
     requests:
       storage: 5Gi
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: open-webui
@@ -168,7 +168,7 @@ spec:
   image: ghcr.io/open-webui/open-webui
   interval: 10m
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: open-webui

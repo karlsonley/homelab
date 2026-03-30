@@ -135,7 +135,7 @@ spec:
       storage: 100Gi
   volumeName: mail-archiver-data-nfs
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: mail-archiver
@@ -144,7 +144,7 @@ spec:
   image: s1t5/mailarchiver
   interval: 10m
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: mail-archiver
@@ -159,7 +159,7 @@ spec:
     numerical:
       order: asc
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
   name: mail-archiver

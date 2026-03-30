@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   name: blocky
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: blocky
@@ -12,7 +12,7 @@ spec:
   image: spx01/blocky
   interval: 1h
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: blocky
@@ -24,7 +24,7 @@ spec:
     semver:
       range: ">=0.26.0 <1.0.0"
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
   name: blocky

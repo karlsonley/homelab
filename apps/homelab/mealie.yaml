@@ -45,7 +45,7 @@ spec:
       property: pocket_id_oidc_client_secret
       version: latest_enabled
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: mealie
@@ -54,7 +54,7 @@ spec:
   image: ghcr.io/mealie-recipes/mealie
   interval: 10m
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: mealie
@@ -66,7 +66,7 @@ spec:
     semver:
       range: ">=3.0.0 <4.0.0"
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
   name: mealie

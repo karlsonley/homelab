@@ -45,7 +45,7 @@ spec:
       property: pocket_id_oidc_client_secret
       version: latest_enabled
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: homebox
@@ -54,7 +54,7 @@ spec:
   image: ghcr.io/sysadminsmedia/homebox
   interval: 10m
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: homebox
@@ -69,7 +69,7 @@ spec:
     semver:
       range: ">=0.0.0 <1.0.0"
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
   name: homebox

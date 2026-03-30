@@ -52,7 +52,7 @@ spec:
       property: velero_kopia_password
       version: latest_enabled
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: bitnami-kubectl
@@ -61,7 +61,7 @@ spec:
   image: docker.io/bitnamilegacy/kubectl
   interval: 1h
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: bitnami-kubectl
@@ -73,7 +73,7 @@ spec:
     semver:
       range: ">=1.0.0 <2.0.0"
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
   name: velero-plugin-for-aws
@@ -82,7 +82,7 @@ spec:
   image: velero/velero-plugin-for-aws
   interval: 1h
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
   name: velero-plugin-for-aws
@@ -94,7 +94,7 @@ spec:
     semver:
       range: ">=1.0.0 <2.0.0"
 ---
-apiVersion: image.toolkit.fluxcd.io/v1beta2
+apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
   name: velero
