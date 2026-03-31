@@ -124,16 +124,6 @@ data:
         url: "https://mealie.sonley.dev/api/app/about"
         <<: *defaults
 
-      - name: N8N
-        group: Applications
-        url: "https://n8n.sonley.dev/healthz"
-        <<: *defaults
-
-      - name: Ollama WebUI
-        group: Applications
-        url: "https://ollama.sonley.dev/health"
-        <<: *defaults
-
       - name: Homebox
         group: Applications
         url: "https://homebox.sonley.dev/api/v1/status"
