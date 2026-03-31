@@ -28,3 +28,30 @@ spec:
     ref: "refs/heads/main"
     path: "clusters/homelab"
     pullSecret: "flux-system"
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: flux-operator
+  namespace: flux-system
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Flux Operator"
+    gethomepage.dev/description: "GitOps Operator UI"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "flux-cd.png"
+    gethomepage.dev/href: "https://flux.sonley.dev"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`flux.sonley.dev`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: flux-operator
+          namespace: flux-system
+          port: 8080
+      middlewares:
+        - name: oidc-auth
+          namespace: traefik
