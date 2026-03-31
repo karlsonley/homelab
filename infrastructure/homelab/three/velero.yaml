@@ -180,12 +180,6 @@ spec:
     deployNodeAgent: true
     nodeAgent:
       podVolumePath: /var/lib/kubelet/pods
-      extraEnvVars:
-        - name: KOPIA_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: velero-credentials
-              key: kopia_password
     schedules:
       daily-backup:
         disabled: false
