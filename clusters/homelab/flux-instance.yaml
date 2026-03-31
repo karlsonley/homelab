@@ -51,7 +51,7 @@ spec:
         - kind: Service
           name: flux-operator
           namespace: flux-system
-          port: 8080
+          port: 9080
       middlewares:
         - name: oidc-auth
           namespace: traefik
