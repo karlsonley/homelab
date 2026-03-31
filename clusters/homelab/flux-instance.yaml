@@ -1,0 +1,30 @@
+---
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+    artifact: "oci://ghcr.io/controlplaneio-fluxcd/flux-operator-manifests"
+  components:
+    - source-controller
+    - source-watcher
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+    - image-reflector-controller
+    - image-automation-controller
+  cluster:
+    type: kubernetes
+    size: small
+    multitenant: false
+    networkPolicy: true
+  sync:
+    kind: GitRepository
+    url: "https://github.com/karlsonley/homelab"
+    ref: "refs/heads/main"
+    path: "clusters/homelab"
+    pullSecret: "flux-system"
