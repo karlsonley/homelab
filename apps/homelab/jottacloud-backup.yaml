@@ -136,6 +136,8 @@ spec:
       expr: |
         kube_job_status_failed{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"} > 0
         and on(job_name, namespace)
+        kube_job_status_succeeded{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"} == 0
+        and on(job_name, namespace)
         (kube_job_created{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"}
           == on(namespace) group_left
           max(kube_job_created{namespace="jottacloud-backup", job_name=~"jottacloud-backup.*"}) by (namespace))
