@@ -60,7 +60,7 @@ metadata:
   name: linkwarden-oidc
   namespace: linkwarden
 spec:
-  refreshInterval: 1h
+  refreshInterval: 15m
   secretStoreRef:
     kind: ClusterSecretStore
     name: scaleway-secret-manager

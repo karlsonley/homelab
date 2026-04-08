@@ -22,7 +22,7 @@ metadata:
   name: mealie-oidc
   namespace: mealie
 spec:
-  refreshInterval: 1h
+  refreshInterval: 15m
   secretStoreRef:
     name: scaleway-secret-manager
     kind: ClusterSecretStore
