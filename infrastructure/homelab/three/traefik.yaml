@@ -156,7 +156,7 @@ metadata:
   name: pocket-id
   namespace: traefik
 spec:
-  refreshInterval: 1h
+  refreshInterval: 15m
   secretStoreRef:
     name: scaleway-secret-manager
     kind: ClusterSecretStore
@@ -184,6 +184,17 @@ spec:
       key: name:homelab
       property: pocket_id_oidc_client_secret
       version: latest_enabled
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: rate-limit
+  namespace: traefik
+spec:
+  rateLimit:
+    average: 100
+    burst: 200
+    period: 1m
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
