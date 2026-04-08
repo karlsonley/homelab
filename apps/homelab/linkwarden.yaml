@@ -89,7 +89,7 @@ metadata:
   name: linkwarden-postgres
   namespace: linkwarden
 spec:
-  instances: 1
+  instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:18
   primaryUpdateStrategy: unsupervised
   storage:
@@ -101,6 +101,8 @@ spec:
       owner: linkwarden
       secret:
         name: linkwarden-db-password
+  monitoring:
+    enablePodMonitor: true
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
