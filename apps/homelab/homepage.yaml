@@ -332,3 +332,7 @@ spec:
           name: homepage
           namespace: homepage
           port: 3000
+          sticky:
+            cookie:
+              name: homepage-affinity
+              httpOnly: true
