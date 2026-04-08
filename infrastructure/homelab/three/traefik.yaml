@@ -106,6 +106,8 @@ spec:
             scheme: https
             permanent: true
       websecure:
+        middlewares:
+          - traefik-rate-limit@kubernetescrd
         transport:
           respondingTimeouts:
             readTimeout: 0s
