@@ -57,6 +57,8 @@ spec:
       owner: mealie
       secret:
         name: mealie-db-password
+      postInitSQL:
+        - ALTER USER mealie WITH REPLICATION
   monitoring:
     enablePodMonitor: true
 ---
