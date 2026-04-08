@@ -110,6 +110,8 @@ spec:
           labelSelector:
             matchLabels:
               app: blocky
+          matchLabelKeys:
+            - pod-template-hash
       containers:
         - name: blocky
           image: spx01/blocky:v0.29.0 # {"$imagepolicy": "flux-system:blocky"}
@@ -176,6 +178,17 @@ spec:
             items:
               - key: config
                 path: "config.yml"
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: blocky
+  namespace: blocky
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: blocky
 ---
 apiVersion: v1
 kind: Service

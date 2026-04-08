@@ -462,6 +462,8 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: immich-server
+          matchLabelKeys:
+            - pod-template-hash
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -539,6 +541,17 @@ spec:
       - name: config
         secret:
           secretName: immich-config
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: immich-server
+  namespace: immich
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: immich-server
 ---
 apiVersion: v1
 kind: Service
