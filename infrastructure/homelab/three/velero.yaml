@@ -193,7 +193,6 @@ spec:
           excludedNamespaces:
             - kube-system
             - velero
-            - monitoring
             - ollama
           includeClusterResources: true
           snapshotMoveData: true
