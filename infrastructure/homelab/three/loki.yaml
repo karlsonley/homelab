@@ -33,13 +33,13 @@ spec:
         replication_factor: 1
       storage:
         type: filesystem
-        retention_period: 7d
+        retention_period: 30d
         bucketNames:
           chunks: loki-chunks
           ruler: loki-ruler
           admin: loki-admin
       limits_config:
-        retention_period: 7d
+        retention_period: 30d
       compactor:
         retention_enabled: true
         delete_request_store: filesystem
@@ -54,10 +54,17 @@ spec:
               period: 24h
     singleBinary:
       replicas: 1
+      resources:
+        requests:
+          cpu: 50m
+          memory: 512Mi
+        limits:
+          cpu: "1"
+          memory: 2Gi
       persistence:
         enabled: true
         storageClass: longhorn
-        size: 10Gi
+        size: 25Gi
     backend:
       replicas: 0
     read:

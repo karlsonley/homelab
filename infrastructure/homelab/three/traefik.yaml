@@ -89,6 +89,13 @@ spec:
         name: traefik
       interval: 5m
   values:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
     deployment:
       kind: DaemonSet
     ports:

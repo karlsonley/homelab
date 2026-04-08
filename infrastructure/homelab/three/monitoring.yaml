@@ -117,6 +117,23 @@ spec:
     prometheus:
       prometheusSpec:
         serviceDiscoveryRole: EndpointSlice
+        retention: 30d
+        resources:
+          requests:
+            cpu: 100m
+            memory: 1Gi
+          limits:
+            cpu: "1"
+            memory: 4Gi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: longhorn
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 50Gi
     grafana:
       defaultDashboardsEnabled: false
       assertNoLeakedSecrets: false
