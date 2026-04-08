@@ -180,7 +180,12 @@ metadata:
   annotations:
     configmap.reloader.stakater.com/reload: "homepage-config"
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: homepage
@@ -189,6 +194,15 @@ spec:
       labels:
         app: homepage
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: homepage
+          matchLabelKeys:
+            - pod-template-hash
       serviceAccountName: homepage
       securityContext:
         runAsNonRoot: true
@@ -275,6 +289,17 @@ spec:
         - name: config-templates
           configMap:
             name: homepage-config
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: homepage
 ---
 apiVersion: v1
 kind: Service
