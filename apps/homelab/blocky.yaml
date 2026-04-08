@@ -103,6 +103,13 @@ spec:
       labels:
         app: blocky
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: blocky
       containers:
         - name: blocky
           image: spx01/blocky:v0.29.0 # {"$imagepolicy": "flux-system:blocky"}
@@ -126,6 +133,27 @@ spec:
             - containerPort: 4000
               name: http
               protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /api/blocking/status
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /api/blocking/status
+              port: 4000
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /api/blocking/status
+              port: 4000
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 5
           volumeMounts:
             - name: config
               mountPath: "/app/config.yml"

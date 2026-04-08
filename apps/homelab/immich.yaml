@@ -455,6 +455,13 @@ spec:
       annotations:
         backup.velero.io/backup-volumes-excludes: library
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: immich-server
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
