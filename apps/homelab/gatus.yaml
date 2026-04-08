@@ -199,19 +199,6 @@ data:
         url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"
         <<: *defaults
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: gatus-data
-  namespace: gatus
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
@@ -272,12 +259,15 @@ metadata:
     configmap.reloader.stakater.com/reload: "gatus-config"
     secret.reloader.stakater.com/reload: "gatus-db-password"
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: gatus
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -290,6 +280,15 @@ spec:
         fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: gatus
+        matchLabelKeys:
+        - pod-template-hash
       containers:
       - name: gatus
         image: ghcr.io/twin/gatus:v5.35.0 # {"$imagepolicy": "flux-system:gatus"}
@@ -338,8 +337,18 @@ spec:
         configMap:
           name: gatus-config
       - name: data
-        persistentVolumeClaim:
-          claimName: gatus-data
+        emptyDir: {}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: gatus
+  namespace: gatus
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: gatus
 ---
 apiVersion: v1
 kind: Service
