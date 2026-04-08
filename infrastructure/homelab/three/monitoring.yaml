@@ -116,6 +116,7 @@ spec:
         - '/etc/alertmanager/config/*.tmpl'
     prometheus:
       prometheusSpec:
+        podMonitorSelectorNilUsesHelmValues: false
         serviceDiscoveryRole: EndpointSlice
         retention: 30d
         resources:
