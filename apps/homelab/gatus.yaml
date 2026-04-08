@@ -145,6 +145,11 @@ data:
         url: "https://bentopdf.sonley.dev"
         <<: *defaults
 
+      - name: Rackula
+        group: Applications
+        url: "https://rackula.sonley.dev"
+        <<: *defaults
+
       - name: Speedtest Tracker
         group: Monitoring
         url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"
