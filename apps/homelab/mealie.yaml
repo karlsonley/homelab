@@ -19,6 +19,50 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
+  name: mealie-db-password
+  namespace: mealie
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: mealie-db-password
+    template:
+      data:
+        username: "mealie"
+        password: "{{ .password }}"
+  data:
+  - secretKey: password
+    remoteRef:
+      key: name:homelab
+      property: mealie_db_password
+      version: latest_enabled
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: mealie-postgres
+  namespace: mealie
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 5Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: mealie
+      owner: mealie
+      secret:
+        name: mealie-db-password
+  monitoring:
+    enablePodMonitor: true
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
   name: mealie-oidc
   namespace: mealie
 spec:
@@ -96,6 +140,8 @@ kind: Deployment
 metadata:
   name: mealie
   namespace: mealie
+  annotations:
+    secret.reloader.stakater.com/reload: "mealie-db-password,mealie-oidc"
 spec:
   replicas: 1
   strategy:
@@ -141,7 +187,20 @@ spec:
         - name: API_PORT
           value: "9000"
         - name: DB_ENGINE
-          value: "sqlite"
+          value: "postgres"
+        - name: POSTGRES_SERVER
+          value: "mealie-postgres-rw"
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          value: "mealie"
+        - name: POSTGRES_USER
+          value: "mealie"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mealie-db-password
+              key: password
         - name: DEFAULT_GROUP
           value: "Home"
         - name: DEFAULT_HOUSEHOLD

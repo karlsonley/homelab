@@ -3,6 +3,50 @@ kind: Namespace
 metadata:
   name: gatus
 ---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: gatus-db-password
+  namespace: gatus
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: gatus-db-password
+    template:
+      data:
+        username: "gatus"
+        password: "{{ .password }}"
+  data:
+  - secretKey: password
+    remoteRef:
+      key: name:homelab
+      property: gatus_db_password
+      version: latest_enabled
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: gatus-postgres
+  namespace: gatus
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 5Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: gatus
+      owner: gatus
+      secret:
+        name: gatus-db-password
+  monitoring:
+    enablePodMonitor: true
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -31,8 +75,8 @@ data:
           send-on-resolved: true
 
     storage:
-      type: sqlite
-      path: /data/data.db
+      type: postgres
+      path: "postgres://gatus:${GATUS_DB_PASSWORD}@gatus-postgres-rw:5432/gatus?sslmode=disable"
 
     connectivity:
       checker:
@@ -226,6 +270,7 @@ metadata:
     app: gatus
   annotations:
     configmap.reloader.stakater.com/reload: "gatus-config"
+    secret.reloader.stakater.com/reload: "gatus-db-password"
 spec:
   replicas: 1
   selector:
@@ -251,6 +296,12 @@ spec:
         ports:
         - containerPort: 8080
           name: http
+        env:
+        - name: GATUS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: gatus-db-password
+              key: password
         securityContext:
           allowPrivilegeEscalation: false
           runAsNonRoot: true
