@@ -199,7 +199,8 @@ spec:
               port: 4000
             initialDelaySeconds: 5
             periodSeconds: 5
-            failureThreshold: 10
+            failureThreshold: 24
+            timeoutSeconds: 5
           livenessProbe:
             httpGet:
               path: /api/blocking/status
