@@ -117,6 +117,8 @@ data:
       customTTL: 1h
       mapping:
         sonley.dev: 10.0.2.200
+    clientLookup:
+      upstream: 10.0.2.1
     queryLog:
       type: postgresql
       target: "host=blocky-postgres-rw port=5432 user=blocky dbname=blocky sslmode=disable"
