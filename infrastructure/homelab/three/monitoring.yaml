@@ -57,6 +57,28 @@ spec:
   interval: 1h
   url: https://prometheus-community.github.io/helm-charts
 ---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: blocky-db-grafana
+  namespace: monitoring
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: blocky-db-grafana
+    template:
+      data:
+        BLOCKY_DB_PASSWORD: "{{ .password }}"
+  data:
+  - secretKey: password
+    remoteRef:
+      key: name:homelab
+      property: blocky_db_password
+      version: latest_enabled
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -139,6 +161,7 @@ spec:
     grafana:
       defaultDashboardsEnabled: false
       assertNoLeakedSecrets: false
+      envFromSecret: blocky-db-grafana
       additionalDataSources:
       - name: Loki
         type: loki
@@ -147,6 +170,17 @@ spec:
         isDefault: false
         jsonData:
           maxLines: 1000
+      - name: Blocky PostgreSQL
+        type: postgres
+        url: blocky-postgres-rw.blocky:5432
+        access: proxy
+        isDefault: false
+        database: blocky
+        user: blocky
+        secureJsonData:
+          password: $BLOCKY_DB_PASSWORD
+        jsonData:
+          sslmode: disable
       grafana.ini:
         panels:
           disable_sanitize_html: true
