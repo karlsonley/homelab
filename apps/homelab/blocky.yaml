@@ -49,6 +49,50 @@ spec:
     path: ./apps/homelab/blocky.yaml
     strategy: Setters
 ---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: blocky-db-password
+  namespace: blocky
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: blocky-db-password
+    template:
+      data:
+        username: "blocky"
+        password: "{{ .password }}"
+  data:
+  - secretKey: password
+    remoteRef:
+      key: name:homelab
+      property: blocky_db_password
+      version: latest_enabled
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: blocky-postgres
+  namespace: blocky
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 5Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: blocky
+      owner: blocky
+      secret:
+        name: blocky-db-password
+  monitoring:
+    enablePodMonitor: true
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -75,6 +119,10 @@ data:
       customTTL: 1h
       mapping:
         sonley.dev: 10.0.2.200
+    queryLog:
+      type: postgresql
+      target: postgres://blocky:${BLOCKY_DB_PASSWORD}@blocky-postgres-rw:5432/blocky?sslmode=disable
+      logRetentionDays: 7
     prometheus:
       enable: true
       path: /metrics
@@ -91,6 +139,8 @@ metadata:
     app: blocky
   name: blocky
   namespace: blocky
+  annotations:
+    secret.reloader.stakater.com/reload: "blocky-db-password"
 spec:
   replicas: 3
   selector:
@@ -118,6 +168,11 @@ spec:
           env:
             - name: log.level
               value: "trace"
+            - name: BLOCKY_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: blocky-db-password
+                  key: password
           resources:
             requests:
               cpu: "25m"
