@@ -98,6 +98,19 @@ spec:
         memory: 512Mi
     deployment:
       kind: DaemonSet
+      initContainers:
+        - name: wait-for-network
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for DNS and network to be ready..."
+              until nslookup github.com > /dev/null 2>&1; do
+                echo "DNS not ready yet, retrying in 5s..."
+                sleep 5
+              done
+              echo "Network is ready"
     ports:
       web:
         redirections:
