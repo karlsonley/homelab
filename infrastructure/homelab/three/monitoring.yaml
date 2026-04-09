@@ -86,6 +86,7 @@ spec:
   values:
     alertmanager:
       alertmanagerSpec:
+        externalUrl: "https://alertmanager.sonley.dev"
         replicas: 3
       config:
         route:
