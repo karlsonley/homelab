@@ -121,7 +121,7 @@ data:
         sonley.dev: 10.0.2.200
     queryLog:
       type: postgresql
-      target: "host=blocky-postgres-rw port=5432 user=blocky password=${BLOCKY_DB_PASSWORD} dbname=blocky sslmode=disable"
+      target: "host=blocky-postgres-rw port=5432 user=blocky dbname=blocky sslmode=disable"
       logRetentionDays: 7
     prometheus:
       enable: true
@@ -171,7 +171,7 @@ spec:
           env:
             - name: log.level
               value: "trace"
-            - name: BLOCKY_DB_PASSWORD
+            - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
                   name: blocky-db-password
