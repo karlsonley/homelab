@@ -148,11 +148,6 @@ data:
         url: "https://glance.sonley.dev"
         <<: *defaults
 
-      - name: Home Assistant
-        group: Applications
-        url: "https://home-assistant.sonley.dev"
-        <<: *defaults
-
       - name: Immich
         group: Applications
         url: "https://immich.sonley.dev/api/server/ping"
