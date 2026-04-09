@@ -344,7 +344,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: machine-learning
-        image: ghcr.io/immich-app/immich-machine-learning:v2.7.2 # {"$imagepolicy": "flux-system:immich-machine-learning"}
+        image: ghcr.io/immich-app/immich-machine-learning:v2.7.3 # {"$imagepolicy": "flux-system:immich-machine-learning"}
         resources:
           requests:
             cpu: "100m"
@@ -472,75 +472,75 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       containers:
-      - name: server
-        image: ghcr.io/immich-app/immich-server:v2.7.2 # {"$imagepolicy": "flux-system:immich-server"}
-        resources:
-          requests:
-            cpu: "50m"
-            memory: "512Mi"
-          limits:
-            cpu: "1000m"
-            memory: "2Gi"
-        ports:
-        - containerPort: 2283
-          name: http
-        - containerPort: 8081
-          name: metrics
-        startupProbe:
-          tcpSocket:
-            port: 2283
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          failureThreshold: 30
-        livenessProbe:
-          tcpSocket:
-            port: 2283
-          periodSeconds: 10
-          failureThreshold: 3
-        readinessProbe:
-          tcpSocket:
-            port: 2283
-          periodSeconds: 5
-          failureThreshold: 3
-        securityContext:
-          allowPrivilegeEscalation: false
-          runAsNonRoot: true
-          capabilities:
-            drop:
-            - ALL
-        env:
-        - name: DB_HOSTNAME
-          value: immich-postgres-rw
-        - name: DB_USERNAME
-          value: immich
-        - name: DB_DATABASE_NAME
-          value: immich
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: immich-db-password
-              key: password
-        - name: REDIS_HOSTNAME
-          value: immich-redis
-        - name: IMMICH_MACHINE_LEARNING_URL
-          value: http://immich-machine-learning:3003
-        - name: IMMICH_TELEMETRY_INCLUDE
-          value: "all"
-        - name: IMMICH_CONFIG_FILE
-          value: /config/immich.json
-        volumeMounts:
-        - name: library
-          mountPath: /usr/src/app/upload
-        - name: config
-          mountPath: /config
-          readOnly: true
+        - name: server
+          image: ghcr.io/immich-app/immich-server:v2.7.2 # {"$imagepolicy": "flux-system:immich-server"}
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+          ports:
+            - containerPort: 2283
+              name: http
+            - containerPort: 8081
+              name: metrics
+          startupProbe:
+            tcpSocket:
+              port: 2283
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            tcpSocket:
+              port: 2283
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 2283
+            periodSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: DB_HOSTNAME
+              value: immich-postgres-rw
+            - name: DB_USERNAME
+              value: immich
+            - name: DB_DATABASE_NAME
+              value: immich
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: immich-db-password
+                  key: password
+            - name: REDIS_HOSTNAME
+              value: immich-redis
+            - name: IMMICH_MACHINE_LEARNING_URL
+              value: http://immich-machine-learning:3003
+            - name: IMMICH_TELEMETRY_INCLUDE
+              value: "all"
+            - name: IMMICH_CONFIG_FILE
+              value: /config/immich.json
+          volumeMounts:
+            - name: library
+              mountPath: /usr/src/app/upload
+            - name: config
+              mountPath: /config
+              readOnly: true
       volumes:
-      - name: library
-        persistentVolumeClaim:
-          claimName: immich-library
-      - name: config
-        secret:
-          secretName: immich-config
+        - name: library
+          persistentVolumeClaim:
+            claimName: immich-library
+        - name: config
+          secret:
+            secretName: immich-config
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
