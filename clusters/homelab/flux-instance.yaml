@@ -19,7 +19,7 @@ spec:
     - image-automation-controller
   cluster:
     type: kubernetes
-    size: small
+    size: medium
     multitenant: false
     networkPolicy: true
   sync:
