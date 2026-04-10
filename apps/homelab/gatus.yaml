@@ -107,7 +107,7 @@ data:
 
       - name: Blocky UI
         group: Applications
-        url: "https://blocky-ui.sonley.dev"
+        url: "http://blocky-ui.blocky:3000"
         <<: *defaults
 
       - name: Blocky DNS
