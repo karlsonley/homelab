@@ -35,6 +35,11 @@ spec:
         name: metallb
       interval: 5m
   values:
+    controller:
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 1
     speaker:
       ignoreExcludeLB: true
     prometheus:

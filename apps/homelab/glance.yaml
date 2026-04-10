@@ -79,9 +79,12 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "glance-config"
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: glance
@@ -90,6 +93,15 @@ spec:
       labels:
         app.kubernetes.io/name: glance
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: glance
+          matchLabelKeys:
+            - pod-template-hash
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -138,6 +150,17 @@ spec:
         - name: config
           secret:
             secretName: glance-config
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: glance
+  namespace: glance
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: glance
 ---
 apiVersion: v1
 kind: Service

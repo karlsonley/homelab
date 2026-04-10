@@ -58,9 +58,12 @@ metadata:
   name: bentopdf
   namespace: bentopdf
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: bentopdf
@@ -69,6 +72,15 @@ spec:
       labels:
         app.kubernetes.io/name: bentopdf
     spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: bentopdf
+          matchLabelKeys:
+            - pod-template-hash
       securityContext:
         seccompProfile:
           type: RuntimeDefault
@@ -112,6 +124,17 @@ spec:
           emptyDir: {}
         - name: nginx-run
           emptyDir: {}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: bentopdf
+  namespace: bentopdf
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bentopdf
 ---
 apiVersion: v1
 kind: Service
