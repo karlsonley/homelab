@@ -196,7 +196,7 @@ data:
 
       - name: N8N
         group: Applications
-        url: "https://n8n.sonley.dev/healthz"
+        url: "http://n8n.n8n:5678/healthz"
         <<: *defaults
 
       - name: Speedtest Tracker
