@@ -10,7 +10,7 @@ jobs:
     # GitHub's native auto-merge then waits for all required checks before merging.
     if: >-
       github.event.label.name == 'automerge-approved' &&
-      github.event.pull_request.user.login == 'renovate[bot]'
+      startsWith(github.event.pull_request.head.ref, 'renovate/')
     runs-on: ubuntu-latest
     permissions:
       contents: write

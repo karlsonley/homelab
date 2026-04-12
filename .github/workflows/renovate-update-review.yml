@@ -21,19 +21,19 @@ jobs:
 
     steps:
       - name: Skip for non-Renovate PRs
-        if: github.actor != 'renovate[bot]'
+        if: ${{ !startsWith(github.event.pull_request.head.ref, 'renovate/') }}
         run: |
-          echo "PR author is ${{ github.actor }}, skipping Claude update-review gate."
+          echo "PR branch is ${{ github.event.pull_request.head.ref }}, not a Renovate branch — skipping gate."
           exit 0
 
       - name: Checkout
-        if: github.actor == 'renovate[bot]'
+        if: startsWith(github.event.pull_request.head.ref, 'renovate/')
         uses: actions/checkout@v5
         with:
           fetch-depth: 1
 
       - name: Claude changelog review
-        if: github.actor == 'renovate[bot]'
+        if: startsWith(github.event.pull_request.head.ref, 'renovate/')
         id: claude
         uses: anthropics/claude-code-action@v1
         env:
@@ -100,7 +100,7 @@ jobs:
             7. Do NOT modify any other files. Do NOT approve or merge the PR.
 
       - name: Read classification
-        if: github.actor == 'renovate[bot]'
+        if: startsWith(github.event.pull_request.head.ref, 'renovate/')
         id: classify
         run: |
           if [ ! -f classification.txt ]; then
