@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
       - name: speedtest-tracker
-        image: lscr.io/linuxserver/speedtest-tracker:1.13.11
+        image: lscr.io/linuxserver/speedtest-tracker:1.13.12
         ports:
         - containerPort: 80
           name: http
