@@ -231,10 +231,10 @@ spec:
       - name: redis
         image: redis:8.6.2-alpine # {"$imagepolicy": "flux-system:n8n-redis"}
         command:
-          - redis-server
-          - /etc/redis/redis.conf
-          - --requirepass
-          - $(REDIS_PASSWORD)
+        - redis-server
+        - /etc/redis/redis.conf
+        - --requirepass
+        - $(REDIS_PASSWORD)
         ports:
         - containerPort: 6379
           name: redis
@@ -257,9 +257,9 @@ spec:
         readinessProbe:
           exec:
             command:
-              - sh
-              - -c
-              - redis-cli -a "$REDIS_PASSWORD" ping | grep PONG
+            - sh
+            - -c
+            - redis-cli -a "$REDIS_PASSWORD" ping | grep PONG
           periodSeconds: 10
         volumeMounts:
         - name: data
@@ -326,7 +326,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: n8n
-        image: ghcr.io/n8n-io/n8n:2.15.1 # {"$imagepolicy": "flux-system:n8n"}
+        image: ghcr.io/n8n-io/n8n:2.16.0 # {"$imagepolicy": "flux-system:n8n"}
         ports:
         - containerPort: 5678
           name: http
@@ -475,7 +475,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: n8n-worker
-        image: ghcr.io/n8n-io/n8n:2.15.1 # {"$imagepolicy": "flux-system:n8n"}
+        image: ghcr.io/n8n-io/n8n:2.16.0 # {"$imagepolicy": "flux-system:n8n"}
         command: ["/docker-entrypoint.sh"]
         args: ["worker"]
         ports:
