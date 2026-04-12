@@ -15,7 +15,6 @@
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dependency Dashboard",
   "dependencyDashboardOSVVulnerabilitySummary": "all",
-  "schedule": ["before 06:00 on every weekday"],
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
   "rebaseWhen": "behind-base-branch",
