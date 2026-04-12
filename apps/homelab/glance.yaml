@@ -22,55 +22,6 @@ spec:
       key: name:glance
       version: latest_enabled
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: glance
-  namespace: flux-system
-spec:
-  image: glanceapp/glance
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: glance
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: glance
-  filterTags:
-    pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=0.8.0 <1.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: glance
-  namespace: flux-system
-spec:
-  interval: 10m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(glance): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/glance.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -111,7 +62,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: glance
-          image: glanceapp/glance:v0.8.4 # {"$imagepolicy": "flux-system:glance"}
+          image: glanceapp/glance:v0.8.3
           ports:
             - name: http
               containerPort: 8080

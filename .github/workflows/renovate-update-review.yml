@@ -1,0 +1,125 @@
+name: Renovate Update Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: renovate-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Gate only fires for Renovate-authored PRs. Non-Renovate PRs short-circuit
+    # to success so branch protection doesn't block them.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Skip for non-Renovate PRs
+        if: github.actor != 'renovate[bot]'
+        run: |
+          echo "PR author is ${{ github.actor }}, skipping Claude update-review gate."
+          exit 0
+
+      - name: Checkout
+        if: github.actor == 'renovate[bot]'
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Claude changelog review
+        if: github.actor == 'renovate[bot]'
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_REPO: ${{ github.repository }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: "--allowed-tools Bash,WebFetch,Read"
+          prompt: |
+            You are gating a Renovate dependency-update PR on the homelab repo.
+            The goal is to catch breaking changes that the version number does not reflect — many upstream projects in this repo (Glance, Immich, Mealie, Blocky) do not follow strict semver, so a "patch" bump can contain breaking config/schema/API changes.
+
+            PR: ${{ github.repository }}#${{ github.event.pull_request.number }}
+
+            ## Steps
+
+            1. Read the PR title, body, and diff.
+               Use `gh pr view $PR_NUMBER` and `gh pr diff $PR_NUMBER`.
+               Identify the dependency name, old version, and new version.
+
+            2. Fetch the upstream release notes / CHANGELOG for every version between old and new (exclusive of old, inclusive of new).
+               Prefer `gh release view <tag> --repo <owner>/<repo>` for GitHub-hosted projects.
+               Fall back to WebFetch on the upstream CHANGELOG.md or release page when `gh release` isn't available.
+               Read EVERY intermediate release — a breaking change in v0.8.5 still matters when bumping v0.8.4 → v0.8.6.
+
+            3. Classify the update as exactly one of:
+               - `safe-patch` — bug fixes, perf, internal refactors, docs. No user-visible behaviour change.
+               - `needs-review` — new features, non-breaking deprecations, config additions with defaults, UI changes. Not breaking but reviewer should glance at it.
+               - `breaking` — removed features, required config/env changes, DB schema migrations, auth/API changes, changed defaults that alter behaviour, anything the CHANGELOG flags as "BREAKING".
+
+               For pre-1.0 projects (current version starts with `0.` or `v0.`), default to `needs-review` unless the changelog is genuinely trivial (doc/typo fix only). Pre-1.0 semver is not reliable.
+
+            4. Post ONE PR comment. If a prior comment whose body starts with `### Renovate update review` already exists on this PR, EDIT that comment instead of creating a new one (use `gh api` with PATCH on `/repos/{repo}/issues/comments/{id}`). Format the body exactly:
+
+               ```
+               ### Renovate update review — <dep> <old> → <new>
+
+               **Classification:** <safe-patch | needs-review | breaking>
+
+               **Features**
+               - …
+
+               **Deprecations**
+               - … (or "none")
+
+               **Breaking changes**
+               - … (or "none")
+
+               **Notes for reviewer**
+               - optional: anything specific to this repo's use of the dep worth flagging
+               ```
+
+            5. Apply labels — first remove any existing `automerge-approved` or `needs-human-review` labels on this PR (ignore failures if not present), then add exactly ONE new label based on classification:
+               - `safe-patch` → add `automerge-approved`
+               - `needs-review` → add `needs-human-review`
+               - `breaking` → add `needs-human-review`
+
+               Use: `gh pr edit $PR_NUMBER --remove-label automerge-approved --remove-label needs-human-review || true` then `gh pr edit $PR_NUMBER --add-label <label>`.
+
+            6. Write the classification to `./classification.txt` in the workspace (no newline, no extra whitespace):
+               `printf '<classification>' > classification.txt`
+
+            7. Do NOT modify any other files. Do NOT approve or merge the PR.
+
+      - name: Read classification
+        if: github.actor == 'renovate[bot]'
+        id: classify
+        run: |
+          if [ ! -f classification.txt ]; then
+            echo "::error::Claude did not write classification.txt — gate inconclusive."
+            exit 1
+          fi
+          CLASSIFICATION=$(tr -d '[:space:]' < classification.txt)
+          echo "Classification: '$CLASSIFICATION'"
+          echo "classification=$CLASSIFICATION" >> "$GITHUB_OUTPUT"
+          case "$CLASSIFICATION" in
+            safe-patch|needs-review)
+              exit 0
+              ;;
+            breaking)
+              echo "::error::Renovate update classified as BREAKING. Human review required before merge."
+              exit 1
+              ;;
+            *)
+              echo "::error::Unrecognised classification: '$CLASSIFICATION'"
+              exit 1
+              ;;
+          esac

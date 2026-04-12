@@ -1,0 +1,60 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":gitSignOff",
+    ":timezone(UTC)"
+  ],
+  "description": "Pilot scope: Glance only. Expand to other apps + HelmReleases after pilot validation.",
+  "enabledManagers": ["kubernetes"],
+  "kubernetes": {
+    "fileMatch": ["^apps/homelab/glance\\.yaml$"]
+  },
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Renovate Dependency Dashboard",
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "schedule": ["before 06:00 on every weekday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 0,
+  "rebaseWhen": "behind-base-branch",
+  "labels": ["dependencies", "renovate"],
+  "commitMessagePrefix": "chore(deps):",
+  "packageRules": [
+    {
+      "description": "Patch: eligible for auto-merge once Claude gate applies the automerge-approved label",
+      "matchUpdateTypes": ["patch", "pin", "digest"],
+      "addLabels": ["update-patch"],
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "Minor: require approval; 3-day cooldown catches hot-fix follow-ups",
+      "matchUpdateTypes": ["minor"],
+      "addLabels": ["update-minor"],
+      "automerge": false,
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Major: dashboard-only, tick to create PR",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["update-major"],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+    {
+      "description": "Pre-1.0 packages: treat minor as major (Glance is currently v0.8.x)",
+      "matchCurrentVersion": "/^v?0\\./",
+      "matchUpdateTypes": ["minor"],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "minimumReleaseAge": null,
+    "schedule": ["at any time"]
+  },
+  "osvVulnerabilityAlerts": true
+}
