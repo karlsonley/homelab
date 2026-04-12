@@ -10,7 +10,10 @@
   "description": "Pilot scope: Glance only. Expand to other apps + HelmReleases after pilot validation.",
   "enabledManagers": ["kubernetes"],
   "kubernetes": {
-    "managerFilePatterns": ["/^apps/homelab/glance\\.yaml$/"]
+    "managerFilePatterns": [
+      "/^apps/homelab/glance\\.yaml$/",
+      "/^apps/homelab/homepage\\.yaml$/"
+    ]
   },
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "Renovate Dependency Dashboard",

@@ -1,49 +1,3 @@
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: homepage
-  namespace: flux-system
-spec:
-  image: ghcr.io/gethomepage/homepage
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: homepage
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: homepage
-  policy:
-    semver:
-      range: ">=1.0.0 <2.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: homepage
-  namespace: flux-system
-spec:
-  interval: 10m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(homepage): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/homepage.yaml
-    strategy: Setters
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -232,7 +186,7 @@ spec:
               mountPath: /app/config
       containers:
         - name: homepage
-          image: ghcr.io/gethomepage/homepage:v1.12.3 # {"$imagepolicy": "flux-system:homepage"}
+          image: ghcr.io/gethomepage/homepage:v1.12.2
           ports:
             - containerPort: 3000
               name: http
