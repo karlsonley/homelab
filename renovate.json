@@ -17,6 +17,7 @@
   "dependencyDashboardOSVVulnerabilitySummary": "all",
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,
+  "prCreation": "immediate",
   "rebaseWhen": "behind-base-branch",
   "labels": ["dependencies", "renovate"],
   "commitMessagePrefix": "chore(deps):",
