@@ -194,6 +194,11 @@ data:
         url: "https://rackula.sonley.dev"
         <<: *defaults
 
+      - name: N8N
+        group: Applications
+        url: "https://n8n.sonley.dev/healthz"
+        <<: *defaults
+
       - name: Speedtest Tracker
         group: Monitoring
         url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"
