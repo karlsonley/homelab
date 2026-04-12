@@ -42,55 +42,6 @@ spec:
     requests:
       storage: 5Gi
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: speedtest-tracker
-  namespace: flux-system
-spec:
-  image: lscr.io/linuxserver/speedtest-tracker
-  interval: 10m
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: speedtest-tracker
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: speedtest-tracker
-  filterTags:
-    pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=1.0.0 <2.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: speedtest-tracker
-  namespace: flux-system
-spec:
-  interval: 10m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(speedtest-tracker): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/speedtest-tracker.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -114,7 +65,7 @@ spec:
     spec:
       containers:
       - name: speedtest-tracker
-        image: lscr.io/linuxserver/speedtest-tracker:1.13.12 # {"$imagepolicy": "flux-system:speedtest-tracker"}
+        image: lscr.io/linuxserver/speedtest-tracker:1.13.11
         ports:
         - containerPort: 80
           name: http

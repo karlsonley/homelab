@@ -12,7 +12,8 @@
   "kubernetes": {
     "managerFilePatterns": [
       "/^apps/homelab/glance\\.yaml$/",
-      "/^apps/homelab/homepage\\.yaml$/"
+      "/^apps/homelab/homepage\\.yaml$/",
+      "/^apps/homelab/speedtest-tracker\\.yaml$/"
     ]
   },
   "dependencyDashboard": true,
