@@ -43,6 +43,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: "--allowed-tools Bash,WebFetch,Read"
+          allowed_bots: "karlsonley-homelab-rennovate"
           prompt: |
             You are gating a Renovate dependency-update PR on the homelab repo.
             The goal is to catch breaking changes that the version number does not reflect — many upstream projects in this repo (Glance, Immich, Mealie, Blocky) do not follow strict semver, so a "patch" bump can contain breaking config/schema/API changes.
