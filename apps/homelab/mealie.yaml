@@ -103,52 +103,6 @@ spec:
       property: pocket_id_oidc_client_secret
       version: latest_enabled
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: mealie
-  namespace: flux-system
-spec:
-  image: ghcr.io/mealie-recipes/mealie
-  interval: 10m
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: mealie
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: mealie
-  policy:
-    semver:
-      range: ">=3.0.0 <4.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: mealie
-  namespace: flux-system
-spec:
-  interval: 10m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(mealie): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/mealie.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -189,7 +143,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: mealie
-        image: ghcr.io/mealie-recipes/mealie:v3.14.0 # {"$imagepolicy": "flux-system:mealie"}
+        image: ghcr.io/mealie-recipes/mealie:v3.14.0
         ports:
         - containerPort: 9000
           name: http

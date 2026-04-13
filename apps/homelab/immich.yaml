@@ -146,97 +146,6 @@ spec:
       storage: 500Gi
   volumeName: immich-library-nfs
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: immich-server
-  namespace: flux-system
-spec:
-  image: ghcr.io/immich-app/immich-server
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: immich-server
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: immich-server
-  policy:
-    semver:
-      range: ">=2.0.0 <3.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: immich-machine-learning
-  namespace: flux-system
-spec:
-  image: ghcr.io/immich-app/immich-machine-learning
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: immich-machine-learning
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: immich-machine-learning
-  policy:
-    semver:
-      range: ">=2.0.0 <3.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: valkey
-  namespace: flux-system
-spec:
-  image: docker.io/valkey/valkey
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: valkey
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: valkey
-  filterTags:
-    pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)-alpine$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=8.0.0 <9.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: immich
-  namespace: flux-system
-spec:
-  interval: 10m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(immich): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/immich.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -265,7 +174,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: redis
-        image: docker.io/valkey/valkey:8.1.6-alpine # {"$imagepolicy": "flux-system:valkey"}
+        image: docker.io/valkey/valkey:8.1.6-alpine
         resources:
           requests:
             cpu: "25m"
@@ -356,7 +265,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: machine-learning
-        image: ghcr.io/immich-app/immich-machine-learning:v2.7.4 # {"$imagepolicy": "flux-system:immich-machine-learning"}
+        image: ghcr.io/immich-app/immich-machine-learning:v2.7.4
         resources:
           requests:
             cpu: "100m"
@@ -485,7 +394,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: server
-          image: ghcr.io/immich-app/immich-server:v2.7.4 # {"$imagepolicy": "flux-system:immich-server"}
+          image: ghcr.io/immich-app/immich-server:v2.7.4
           resources:
             requests:
               cpu: "50m"

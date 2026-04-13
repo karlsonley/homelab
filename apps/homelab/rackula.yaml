@@ -17,55 +17,6 @@ spec:
     requests:
       storage: 1Gi
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: rackula
-  namespace: flux-system
-spec:
-  image: ghcr.io/rackulalives/rackula
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: rackula
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: rackula
-  filterTags:
-    pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=0.0.0 <1.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: rackula
-  namespace: flux-system
-spec:
-  interval: 1h
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(rackula): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/rackula.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -92,7 +43,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: rackula
-          image: ghcr.io/rackulalives/rackula:0.9.3 # {"$imagepolicy": "flux-system:rackula"}
+          image: ghcr.io/rackulalives/rackula:0.9.3
           ports:
             - name: http
               containerPort: 8080

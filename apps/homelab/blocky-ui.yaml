@@ -1,52 +1,3 @@
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: blocky-ui
-  namespace: flux-system
-spec:
-  image: ghcr.io/gabeduartem/blocky-ui
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: blocky-ui
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: blocky-ui
-  filterTags:
-    pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=1.0.0 <2.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: blocky-ui
-  namespace: flux-system
-spec:
-  interval: 1h
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(blocky-ui): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/blocky-ui.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -89,7 +40,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: blocky-ui
-          image: ghcr.io/gabeduartem/blocky-ui:1.6.1 # {"$imagepolicy": "flux-system:blocky-ui"}
+          image: ghcr.io/gabeduartem/blocky-ui:1.6.1
           env:
             - name: BLOCKY_API_URL
               value: "https://blocky.sonley.dev"

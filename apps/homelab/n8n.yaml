@@ -113,79 +113,6 @@ spec:
   podMetricsEndpoints:
   - port: metrics
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: n8n
-  namespace: flux-system
-spec:
-  image: ghcr.io/n8n-io/n8n
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: n8n
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: n8n
-  filterTags:
-    pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=2.0.0 <3.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: n8n-redis
-  namespace: flux-system
-spec:
-  image: redis
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: n8n-redis
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: n8n-redis
-  filterTags:
-    pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)-alpine$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=8.0.0 <9.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: n8n
-  namespace: flux-system
-spec:
-  interval: 1h
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(n8n): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/n8n.yaml
-    strategy: Setters
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -229,7 +156,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: redis
-        image: redis:8.6.2-alpine # {"$imagepolicy": "flux-system:n8n-redis"}
+        image: redis:8.6.2-alpine
         command:
         - redis-server
         - /etc/redis/redis.conf
@@ -326,7 +253,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: n8n
-        image: ghcr.io/n8n-io/n8n:2.16.0 # {"$imagepolicy": "flux-system:n8n"}
+        image: ghcr.io/n8n-io/n8n:2.16.0
         ports:
         - containerPort: 5678
           name: http
@@ -475,7 +402,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: n8n-worker
-        image: ghcr.io/n8n-io/n8n:2.16.0 # {"$imagepolicy": "flux-system:n8n"}
+        image: ghcr.io/n8n-io/n8n:2.16.0
         command: ["/docker-entrypoint.sh"]
         args: ["worker"]
         ports:
