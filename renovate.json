@@ -7,11 +7,16 @@
     ":gitSignOff",
     ":timezone(UTC)"
   ],
-  "description": "Phase 1: all apps + infra image tags. HelmRelease chart versions (Phase 2) and Terraform providers (Phase 3) are deferred.",
-  "enabledManagers": ["kubernetes"],
+  "description": "Phase 1 + 2: all apps + infra image tags and infrastructure HelmRelease chart versions. Terraform providers (Phase 3) are deferred.",
+  "enabledManagers": ["kubernetes", "flux"],
   "kubernetes": {
     "managerFilePatterns": [
       "/^apps/homelab/.+\\.yaml$/",
+      "/^infrastructure/homelab/.+\\.yaml$/"
+    ]
+  },
+  "flux": {
+    "managerFilePatterns": [
       "/^infrastructure/homelab/.+\\.yaml$/"
     ]
   },
