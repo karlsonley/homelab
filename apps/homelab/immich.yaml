@@ -174,7 +174,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: redis
-        image: docker.io/valkey/valkey:8.1.6-alpine
+        image: docker.io/valkey/valkey:9.0.3-alpine
         resources:
           requests:
             cpu: "25m"
