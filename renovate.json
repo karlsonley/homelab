@@ -7,13 +7,12 @@
     ":gitSignOff",
     ":timezone(UTC)"
   ],
-  "description": "Pilot scope: Glance only. Expand to other apps + HelmReleases after pilot validation.",
+  "description": "Phase 1: all apps + infra image tags. HelmRelease chart versions (Phase 2) and Terraform providers (Phase 3) are deferred.",
   "enabledManagers": ["kubernetes"],
   "kubernetes": {
     "managerFilePatterns": [
-      "/^apps/homelab/glance\\.yaml$/",
-      "/^apps/homelab/homepage\\.yaml$/",
-      "/^apps/homelab/speedtest-tracker\\.yaml$/"
+      "/^apps/homelab/.+\\.yaml$/",
+      "/^infrastructure/homelab/.+\\.yaml$/"
     ]
   },
   "dependencyDashboard": true,

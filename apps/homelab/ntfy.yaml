@@ -53,52 +53,6 @@ data:
       {{- else if eq (index .alerts 0).labels.severity "warning" }}4
       {{- else }}3{{- end }}
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: ntfy
-  namespace: flux-system
-spec:
-  image: binwiederhier/ntfy
-  interval: 10m
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: ntfy
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: ntfy
-  policy:
-    semver:
-      range: ">=2.0.0 <3.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: ntfy
-  namespace: flux-system
-spec:
-  interval: 10m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(ntfy): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/ntfy.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -127,7 +81,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: ntfy
-        image: binwiederhier/ntfy:v2.21.0 # {"$imagepolicy": "flux-system:ntfy"}
+        image: binwiederhier/ntfy:v2.21.0
         args:
         - serve
         ports:

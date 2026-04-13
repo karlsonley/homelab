@@ -204,55 +204,6 @@ data:
         url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"
         <<: *defaults
 ---
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageRepository
-metadata:
-  name: gatus
-  namespace: flux-system
-spec:
-  image: ghcr.io/twin/gatus
-  interval: 1h
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImagePolicy
-metadata:
-  name: gatus
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: gatus
-  filterTags:
-    pattern: '^v(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
-    extract: '$version'
-  policy:
-    semver:
-      range: ">=5.0.0 <6.0.0"
----
-apiVersion: image.toolkit.fluxcd.io/v1
-kind: ImageUpdateAutomation
-metadata:
-  name: gatus
-  namespace: flux-system
-spec:
-  interval: 10m
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  git:
-    checkout:
-      ref:
-        branch: main
-    commit:
-      author:
-        email: fluxcdbot@users.noreply.github.com
-        name: fluxcdbot
-      messageTemplate: "chore(gatus): update image"
-    push:
-      branch: main
-  update:
-    path: ./apps/homelab/gatus.yaml
-    strategy: Setters
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -296,7 +247,7 @@ spec:
         - pod-template-hash
       containers:
       - name: gatus
-        image: ghcr.io/twin/gatus:v5.35.0 # {"$imagepolicy": "flux-system:gatus"}
+        image: ghcr.io/twin/gatus:v5.35.0
         ports:
         - containerPort: 8080
           name: http

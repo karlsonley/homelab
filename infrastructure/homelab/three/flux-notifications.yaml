@@ -28,8 +28,6 @@ spec:
       name: '*'
     - kind: HelmRepository
       name: '*'
-    - kind: ImageUpdateAutomation
-      name: '*'
   inclusionList:
     - ".*upgrade.*"
     - ".*successful.*"
