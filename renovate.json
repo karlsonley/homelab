@@ -45,6 +45,7 @@
   "labels": ["dependencies", "renovate"],
   "commitMessagePrefix": "chore(deps):",
   "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
   "packageRules": [
     {
       "description": "Patch: eligible for auto-merge once Claude gate applies the automerge-approved label",
