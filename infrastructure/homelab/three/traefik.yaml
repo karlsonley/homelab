@@ -82,10 +82,14 @@ spec:
   releaseName: traefik
   targetNamespace: traefik
   interval: 30m
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
   chart:
     spec:
       chart: traefik
-      version: "37.4.0"
+      version: "39.0.7"
       sourceRef:
         kind: HelmRepository
         name: traefik
@@ -115,14 +119,16 @@ spec:
               echo "Network is ready"
     ports:
       web:
-        redirections:
-          entryPoint:
-            to: websecure
-            scheme: https
-            permanent: true
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
       websecure:
-        middlewares:
-          - traefik-rate-limit@kubernetescrd
+        http:
+          middlewares:
+            - traefik-rate-limit@kubernetescrd
         transport:
           respondingTimeouts:
             readTimeout: 0s
