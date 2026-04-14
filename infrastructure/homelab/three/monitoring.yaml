@@ -88,10 +88,14 @@ spec:
   releaseName: kube-prometheus-stack
   targetNamespace: monitoring
   interval: 30m
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: "76.5.1"
+      version: "83.4.1"
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
