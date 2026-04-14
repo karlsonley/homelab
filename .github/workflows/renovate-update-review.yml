@@ -28,14 +28,14 @@ jobs:
 
       - name: Checkout
         if: startsWith(github.event.pull_request.head.ref, 'renovate/')
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           fetch-depth: 1
 
       - name: Claude changelog review
         if: startsWith(github.event.pull_request.head.ref, 'renovate/')
         id: claude
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@1c8b699d43e9bfed42b48ef15da85d89bab70960 # v1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}

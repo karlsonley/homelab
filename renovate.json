@@ -5,10 +5,11 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":gitSignOff",
-    ":timezone(UTC)"
+    ":timezone(UTC)",
+    "helpers:pinGitHubActionDigests"
   ],
   "description": "Phase 1 + 2: all apps + infra image tags and infrastructure HelmRelease chart versions. Terraform providers (Phase 3) are deferred.",
-  "enabledManagers": ["kubernetes", "flux"],
+  "enabledManagers": ["kubernetes", "flux", "github-actions"],
   "kubernetes": {
     "managerFilePatterns": [
       "/^apps/homelab/.+\\.yaml$/",
@@ -24,10 +25,12 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "/^infrastructure/homelab/.+\\.yaml$/"
+        "/^infrastructure/homelab/.+\\.yaml$/",
+        "/^apps/homelab/.+\\.yaml$/"
       ],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?\\s*\\n\\s*tag:\\s*(?<currentValue>\\S+)"
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?\\s*\\n\\s*(?:tag|version):\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?",
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?\\s*\\n\\s*image:\\s*\\S+?:(?<currentValue>[^\"'\\s]+)"
       ],
       "versioningTemplate": "{{#if versioning}}{{versioning}}{{else}}semver{{/if}}"
     }
@@ -41,19 +44,18 @@
   "rebaseWhen": "behind-base-branch",
   "labels": ["dependencies", "renovate"],
   "commitMessagePrefix": "chore(deps):",
+  "minimumReleaseAge": "7 days",
   "packageRules": [
     {
       "description": "Patch: eligible for auto-merge once Claude gate applies the automerge-approved label",
       "matchUpdateTypes": ["patch", "pin", "digest"],
-      "addLabels": ["update-patch"],
-      "minimumReleaseAge": "1 day"
+      "addLabels": ["update-patch"]
     },
     {
-      "description": "Minor: require approval; 3-day cooldown catches hot-fix follow-ups",
+      "description": "Minor: require approval",
       "matchUpdateTypes": ["minor"],
       "addLabels": ["update-minor"],
-      "automerge": false,
-      "minimumReleaseAge": "3 days"
+      "automerge": false
     },
     {
       "description": "Major: dashboard-only, tick to create PR",
