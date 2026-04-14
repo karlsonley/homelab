@@ -88,6 +88,10 @@ spec:
   releaseName: kube-prometheus-stack
   targetNamespace: monitoring
   interval: 30m
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
   chart:
     spec:
       chart: kube-prometheus-stack
