@@ -125,10 +125,19 @@ spec:
           - receiver: "null"
             matchers:
             - alertname = "Watchdog"
+          - receiver: "null"
+            matchers:
+            - alertname = "InfoInhibitor"
           - receiver: ntfy-flux
             matchers:
             - source = "flux"
           - receiver: ntfy-prometheus
+        inhibit_rules:
+        - source_matchers:
+          - alertname = "InfoInhibitor"
+          target_matchers:
+          - severity = "info"
+          equal: ['namespace']
         receivers:
         - name: ntfy-flux
           webhook_configs:
