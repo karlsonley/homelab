@@ -90,7 +90,7 @@ spec:
               type: RuntimeDefault
           containers:
           - name: jottacloud-backup
-            image: alpine:latest
+            image: alpine:3.22
             command: ["/bin/sh", "/scripts/backup.sh"]
             securityContext:
               allowPrivilegeEscalation: false

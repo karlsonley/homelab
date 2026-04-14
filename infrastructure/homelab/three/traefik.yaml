@@ -106,6 +106,7 @@ spec:
       kind: DaemonSet
       initContainers:
         - name: wait-for-network
+          # renovate: datasource=docker depName=busybox
           image: busybox:1.37
           command:
             - sh
@@ -168,6 +169,7 @@ spec:
       plugins:
         traefik-oidc-auth:
           moduleName: "github.com/sevensolutions/traefik-oidc-auth"
+          # renovate: datasource=github-releases depName=sevensolutions/traefik-oidc-auth
           version: "v0.18.0"
     providers:
       kubernetesCRD:
