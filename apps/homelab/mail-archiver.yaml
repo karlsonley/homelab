@@ -85,7 +85,7 @@ metadata:
   namespace: mail-archiver
 spec:
   instances: 1
-  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
