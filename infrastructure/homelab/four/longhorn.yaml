@@ -37,11 +37,6 @@ spec:
   values:
     defaultSettings:
       defaultReplicaCount: "3"
-    image:
-      longhorn:
-        instanceManager:
-          # renovate: datasource=docker depName=longhornio/longhorn-instance-manager
-          tag: v1.11.0-hotfix-1
     metrics:
       serviceMonitor:
         enabled: true
