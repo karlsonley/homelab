@@ -46,7 +46,7 @@ metadata:
   namespace: mealie
 spec:
   instances: 2
-  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
