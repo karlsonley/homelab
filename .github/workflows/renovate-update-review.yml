@@ -37,7 +37,7 @@ jobs:
       - name: Claude changelog review
         if: startsWith(github.event.pull_request.head.ref, 'renovate/')
         id: claude
-        uses: anthropics/claude-code-action@39431830520a7ae6c0c572f11a7707e7043325e3 # v1
+        uses: anthropics/claude-code-action@5fb899572b81d2bb648d4d187173a2f423a9677c # v1
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
