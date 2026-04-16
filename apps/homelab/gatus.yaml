@@ -168,6 +168,16 @@ data:
         url: "https://mealie.sonley.dev/api/app/about"
         <<: *defaults
 
+      - name: Home Assistant
+        group: Applications
+        url: "https://homeassistant.sonley.dev"
+        <<: *defaults
+
+      - name: Home Assistant Observer
+        group: Applications
+        url: "https://observer.sonley.dev"
+        <<: *defaults
+
       - name: Homebox
         group: Applications
         url: "https://homebox.sonley.dev/api/v1/status"

@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: home-assistant
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+spec:
+  clusterIP: None
+  ports:
+    - port: 8123
+      targetPort: 8123
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+  labels:
+    kubernetes.io/service-name: home-assistant
+addressType: IPv4
+endpoints:
+  - addresses:
+      - 10.0.2.110
+ports:
+  - port: 8123
+    protocol: TCP
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant
+  namespace: home-assistant
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`homeassistant.sonley.dev`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: home-assistant
+          namespace: home-assistant
+          port: 8123
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-assistant-observer
+  namespace: home-assistant
+spec:
+  clusterIP: None
+  ports:
+    - port: 4357
+      targetPort: 4357
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: home-assistant-observer
+  namespace: home-assistant
+  labels:
+    kubernetes.io/service-name: home-assistant-observer
+addressType: IPv4
+endpoints:
+  - addresses:
+      - 10.0.2.110
+ports:
+  - port: 4357
+    protocol: TCP
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant-observer
+  namespace: home-assistant
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`observer.sonley.dev`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: home-assistant-observer
+          namespace: home-assistant
+          port: 4357
