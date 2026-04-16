@@ -118,7 +118,15 @@ data:
           memory: true
           showLabel: true
   services.yaml: |
-    []
+    - More Applications:
+        - Home Assistant:
+            icon: home-assistant.png
+            href: https://homeassistant.sonley.dev
+            description: Home automation platform
+        - Home Assistant Observer:
+            icon: home-assistant.png
+            href: https://observer.sonley.dev
+            description: Home Assistant system observer
   bookmarks.yaml: |
     []
   docker.yaml: |
