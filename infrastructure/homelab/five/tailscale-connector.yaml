@@ -10,3 +10,5 @@ spec:
     advertiseRoutes:
       - "10.0.2.200/32"  # Traefik
       - "10.0.2.201/32"  # Blocky DNS
+      - "10.0.2.128/32"  # Proxmox
+      - "10.0.2.251/32"  # Home Assistant
