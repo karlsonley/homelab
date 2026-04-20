@@ -25,7 +25,7 @@ metadata:
 addressType: IPv4
 endpoints:
   - addresses:
-      - 10.0.2.110
+      - 10.0.2.251
 ports:
   - port: 8123
     protocol: TCP
@@ -39,7 +39,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`homeassistant.sonley.dev`)
+    - match: Host(`home-assistant.sonley.dev`)
       kind: Rule
       services:
         - kind: Service
@@ -68,7 +68,7 @@ metadata:
 addressType: IPv4
 endpoints:
   - addresses:
-      - 10.0.2.110
+      - 10.0.2.251
 ports:
   - port: 4357
     protocol: TCP
@@ -82,7 +82,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`observer.sonley.dev`)
+    - match: Host(`ha-observer.sonley.dev`)
       kind: Rule
       services:
         - kind: Service
