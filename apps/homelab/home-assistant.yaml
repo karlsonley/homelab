@@ -137,3 +137,31 @@ spec:
         credentials:
           name: home-assistant-prometheus-token
           key: token
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: home-assistant-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: home-assistant
+    rules:
+    - alert: HomeAssistantDown
+      expr: up{job="home-assistant"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Home Assistant is unreachable"
+        description: "Prometheus has been unable to scrape Home Assistant metrics for more than 5 minutes."
+    - alert: HomeAssistantUpdateAvailable
+      expr: homeassistant_update_state == 1
+      for: 1h
+      labels:
+        severity: info
+      annotations:
+        summary: "Home Assistant update available: {{ $labels.friendly_name }}"
+        description: "An update is available for {{ $labels.friendly_name }} ({{ $labels.entity }})."

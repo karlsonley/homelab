@@ -178,9 +178,9 @@ data:
         url: "http://10.0.2.251:4357"
         conditions:
           - "[STATUS] == 200"
-          - "[BODY] == pat:*Connected*"
-          - "[BODY] == pat:*Supported*"
-          - "[BODY] == pat:*Healthy*"
+          - "[BODY] contains > Connected"
+          - "[BODY] contains > Supported"
+          - "[BODY] contains > Healthy"
 
       - name: Proxmox
         group: Infrastructure
