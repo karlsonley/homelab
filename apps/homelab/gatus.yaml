@@ -175,8 +175,12 @@ data:
 
       - name: Home Assistant Observer
         group: Applications
-        url: "https://ha-observer.sonley.dev"
-        <<: *defaults
+        url: "http://10.0.2.251:4357"
+        conditions:
+          - "[STATUS] == 200"
+          - "[BODY] == pat:*Connected*"
+          - "[BODY] == pat:*Supported*"
+          - "[BODY] == pat:*Healthy*"
 
       - name: Proxmox
         group: Infrastructure
