@@ -118,14 +118,19 @@ data:
           memory: true
           showLabel: true
   services.yaml: |
+    - Infrastructure:
+        - Proxmox:
+            icon: proxmox.png
+            href: https://proxmox.sonley.dev
+            description: Proxmox hypervisor
     - More Applications:
         - Home Assistant:
             icon: home-assistant.png
-            href: https://homeassistant.sonley.dev
+            href: https://home-assistant.sonley.dev
             description: Home automation platform
         - Home Assistant Observer:
             icon: home-assistant.png
-            href: https://observer.sonley.dev
+            href: https://ha-observer.sonley.dev
             description: Home Assistant system observer
   bookmarks.yaml: |
     []
