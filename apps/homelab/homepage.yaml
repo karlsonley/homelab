@@ -123,6 +123,10 @@ data:
             icon: proxmox.png
             href: https://proxmox.sonley.dev
             description: Proxmox hypervisor
+        - Ugreen NAS:
+            icon: ugreen.png
+            href: https://ugreen-nas.sonley.dev
+            description: Ugreen NAS
     - More Applications:
         - Home Assistant:
             icon: home-assistant.png

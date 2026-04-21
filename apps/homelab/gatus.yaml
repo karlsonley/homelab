@@ -185,7 +185,7 @@ data:
 
       - name: Ugreen NAS
         group: Infrastructure
-        url: "http://10.0.2.100:9999"
+        url: "https://ugreen-nas.sonley.dev"
         <<: *defaults
 
       - name: Homebox
