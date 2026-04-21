@@ -41,7 +41,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`ugreen-nas.sonley.dev`)
+    - match: Host(`nas.sonley.dev`)
       kind: Rule
       services:
         - kind: Service
