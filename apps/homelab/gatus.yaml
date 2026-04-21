@@ -176,11 +176,7 @@ data:
       - name: Home Assistant Observer
         group: Applications
         url: "http://10.0.2.251:4357"
-        conditions:
-          - "[STATUS] == 200"
-          - "[BODY] contains > Connected"
-          - "[BODY] contains > Supported"
-          - "[BODY] contains > Healthy"
+        <<: *defaults
 
       - name: Proxmox
         group: Infrastructure
