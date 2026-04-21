@@ -30,7 +30,8 @@ endpoints:
   - addresses:
       - 10.0.2.251
 ports:
-  - port: 8123
+  - name: http
+    port: 8123
     protocol: TCP
 ---
 apiVersion: traefik.io/v1alpha1
