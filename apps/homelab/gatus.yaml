@@ -183,9 +183,9 @@ data:
         url: "https://proxmox.sonley.dev"
         <<: *defaults
 
-      - name: Ugreen NAS
+      - name: NAS
         group: Infrastructure
-        url: "https://ugreen-nas.sonley.dev"
+        url: "https://nas.sonley.dev"
         <<: *defaults
 
       - name: Homebox
