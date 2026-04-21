@@ -170,12 +170,22 @@ data:
 
       - name: Home Assistant
         group: Applications
-        url: "https://homeassistant.sonley.dev"
+        url: "https://home-assistant.sonley.dev"
         <<: *defaults
 
       - name: Home Assistant Observer
         group: Applications
-        url: "https://observer.sonley.dev"
+        url: "https://ha-observer.sonley.dev"
+        <<: *defaults
+
+      - name: Proxmox
+        group: Infrastructure
+        url: "https://proxmox.sonley.dev"
+        <<: *defaults
+
+      - name: NAS
+        group: Infrastructure
+        url: "https://nas.sonley.dev"
         <<: *defaults
 
       - name: Homebox

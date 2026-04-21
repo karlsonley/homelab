@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ugreen-nas
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ugreen-nas
+  namespace: ugreen-nas
+spec:
+  clusterIP: None
+  ports:
+    - port: 9999
+      targetPort: 9999
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: ugreen-nas
+  namespace: ugreen-nas
+  labels:
+    kubernetes.io/service-name: ugreen-nas
+addressType: IPv4
+endpoints:
+  - addresses:
+      - 10.0.2.100
+    conditions:
+      ready: true
+ports:
+  - port: 9999
+    protocol: TCP
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ugreen-nas
+  namespace: ugreen-nas
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`nas.sonley.dev`)
+      kind: Rule
+      services:
+        - kind: Service
+          name: ugreen-nas
+          namespace: ugreen-nas
+          port: 9999
