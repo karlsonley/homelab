@@ -9,10 +9,13 @@ kind: Service
 metadata:
   name: home-assistant
   namespace: home-assistant
+  labels:
+    app.kubernetes.io/name: home-assistant
 spec:
   clusterIP: None
   ports:
-    - port: 8123
+    - name: http
+      port: 8123
       targetPort: 8123
 ---
 apiVersion: discovery.k8s.io/v1
@@ -89,3 +92,47 @@ spec:
           name: home-assistant-observer
           namespace: home-assistant
           port: 4357
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: home-assistant-prometheus-token
+  namespace: monitoring
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: home-assistant-prometheus-token
+  data:
+    - secretKey: token
+      remoteRef:
+        key: name:homelab
+        property: home_assistant_prometheus_token
+        version: latest_enabled
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: home-assistant
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: home-assistant
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: home-assistant
+  namespaceSelector:
+    matchNames:
+      - home-assistant
+  endpoints:
+    - port: http
+      path: /api/prometheus
+      interval: 30s
+      scrapeTimeout: 10s
+      authorization:
+        credentials:
+          name: home-assistant-prometheus-token
+          key: token
