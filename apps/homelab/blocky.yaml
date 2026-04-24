@@ -69,8 +69,8 @@ data:
     upstreams:
       groups:
         default:
-          - 1.1.1.1
-          - 1.0.0.1
+          - https://cloudflare-dns.com/dns-query
+          - https://1.0.0.1/dns-query
     blocking:
       denylists:
         default:
