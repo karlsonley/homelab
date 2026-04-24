@@ -48,6 +48,11 @@
   "internalChecksFilter": "strict",
   "packageRules": [
     {
+      "description": "Group Immich components into a single PR",
+      "matchPackagePatterns": ["immich"],
+      "groupName": "immich"
+    },
+    {
       "description": "Patch: eligible for auto-merge once Claude gate applies the automerge-approved label",
       "matchUpdateTypes": ["patch", "pin", "digest"],
       "addLabels": ["update-patch"]
