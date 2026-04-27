@@ -37,7 +37,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: bentopdf
-          image: ghcr.io/alam00000/bentopdf-simple:v2.8.2
+          image: ghcr.io/alam00000/bentopdf-simple:2.8.4
           ports:
             - containerPort: 8080
               name: http
