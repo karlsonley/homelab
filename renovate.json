@@ -53,6 +53,11 @@
       "groupName": "immich"
     },
     {
+      "description": "ghcr.io images don't embed org.opencontainers.image.created, so Renovate can't evaluate minimumReleaseAge — disable the check to unblock PR creation",
+      "matchManagers": ["kubernetes"],
+      "minimumReleaseAge": null
+    },
+    {
       "description": "Patch: eligible for auto-merge once Claude gate applies the automerge-approved label",
       "matchUpdateTypes": ["patch", "pin", "digest"],
       "addLabels": ["update-patch"]
