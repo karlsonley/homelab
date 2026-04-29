@@ -182,7 +182,7 @@ spec:
             - ALL
       containers:
       - name: mail-archiver
-        image: s1t5/mailarchiver:2604.1
+        image: s1t5/mailarchiver:2604.2
         ports:
         - containerPort: 5000
           name: http
