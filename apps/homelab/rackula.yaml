@@ -126,3 +126,17 @@ spec:
           name: rackula
           namespace: rackula
           port: 8080
+
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: rackula
+  namespace: rackula
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rackula
+  updatePolicy:
+    updateMode: "Off"

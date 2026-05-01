@@ -126,3 +126,17 @@ spec:
           name: bentopdf
           namespace: bentopdf
           port: 8080
+
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: bentopdf
+  namespace: bentopdf
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: bentopdf
+  updatePolicy:
+    updateMode: "Off"
