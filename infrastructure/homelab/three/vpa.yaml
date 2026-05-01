@@ -41,3 +41,36 @@ spec:
         enabled: false
     updater:
       enabled: false
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: vpa-recommender
+  namespace: vpa
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vertical-pod-autoscaler
+      app.kubernetes.io/component: recommender
+  podMetricsEndpoints:
+    - port: prometheus
+      path: /metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: vpa-admission-controller
+  namespace: vpa
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vertical-pod-autoscaler
+      app.kubernetes.io/component: admission-controller
+  podMetricsEndpoints:
+    - port: prometheus
+      path: /metrics
