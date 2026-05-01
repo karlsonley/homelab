@@ -237,3 +237,17 @@ spec:
           name: speedtest-tracker
           namespace: speedtest-tracker
           port: 80
+
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest-tracker
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: speedtest-tracker
+  updatePolicy:
+    updateMode: "Off"

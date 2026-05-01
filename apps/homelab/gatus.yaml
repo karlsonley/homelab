@@ -371,3 +371,17 @@ spec:
           name: gatus
           namespace: gatus
           port: 8080
+
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: gatus
+  namespace: gatus
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gatus
+  updatePolicy:
+    updateMode: "Off"

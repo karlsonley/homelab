@@ -293,3 +293,17 @@ spec:
           name: mealie
           namespace: mealie
           port: 9000
+
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: mealie
+  namespace: mealie
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mealie
+  updatePolicy:
+    updateMode: "Off"

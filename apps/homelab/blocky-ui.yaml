@@ -148,3 +148,17 @@ spec:
           name: blocky-ui
           namespace: blocky
           port: 3000
+
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: blocky-ui
+  namespace: blocky
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: blocky-ui
+  updatePolicy:
+    updateMode: "Off"
