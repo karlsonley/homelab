@@ -16,3 +16,17 @@ metadata:
 spec:
   ipAddressPools:
     - pool
+
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: metallb-controller
+  namespace: metallb
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: metallb-controller
+  updatePolicy:
+    updateMode: "Off"
