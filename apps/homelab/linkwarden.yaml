@@ -89,6 +89,8 @@ metadata:
   name: linkwarden-postgres
   namespace: linkwarden
 spec:
+  affinity:
+    podAntiAffinityType: required
   instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
