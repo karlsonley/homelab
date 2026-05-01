@@ -32,6 +32,8 @@ metadata:
   name: blocky-postgres
   namespace: blocky
 spec:
+  affinity:
+    podAntiAffinityType: required
   instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised

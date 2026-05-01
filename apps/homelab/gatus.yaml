@@ -32,6 +32,8 @@ metadata:
   name: gatus-postgres
   namespace: gatus
 spec:
+  affinity:
+    podAntiAffinityType: required
   instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
@@ -203,6 +205,11 @@ data:
         url: "https://mail-archiver.sonley.dev"
         <<: *defaults
 
+
+      - name: Actual Budget
+        group: Applications
+        url: "https://actual.sonley.dev"
+        <<: *defaults
 
       - name: BentoPDF
         group: Applications

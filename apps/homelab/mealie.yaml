@@ -45,6 +45,8 @@ metadata:
   name: mealie-postgres
   namespace: mealie
 spec:
+  affinity:
+    podAntiAffinityType: required
   instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
