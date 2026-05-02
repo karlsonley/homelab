@@ -223,8 +223,6 @@ metadata:
     gethomepage.dev/icon: "speedtest-tracker.png"
     gethomepage.dev/href: "https://speedtest.sonley.dev"
     gethomepage.dev/pod-selector: "app=speedtest-tracker"
-    gethomepage.dev/widget.type: "speedtest"
-    gethomepage.dev/widget.url: "http://speedtest-tracker.speedtest-tracker:80"
 spec:
   entryPoints:
     - websecure
