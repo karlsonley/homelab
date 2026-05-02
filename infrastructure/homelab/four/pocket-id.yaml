@@ -39,6 +39,66 @@ spec:
       property: pocket_id_encryption_key
       version: latest_enabled
 ---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pocket-id-db-password
+  namespace: pocket-id
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: pocket-id-db-password
+    template:
+      data:
+        username: "pocketid"
+        password: "{{ .password }}"
+  data:
+  - secretKey: password
+    remoteRef:
+      key: name:homelab
+      property: pocket_id_db_password
+      version: latest_enabled
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pocket-id-postgres
+  namespace: pocket-id
+spec:
+  affinity:
+    podAntiAffinityType: required
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 5Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: pocketid
+      owner: pocketid
+      secret:
+        name: pocket-id-db-password
+  monitoring:
+    enablePodMonitor: true
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: pocket-id-postgres
+  namespace: pocket-id
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: pocket-id-postgres
+  podMetricsEndpoints:
+  - port: metrics
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,13 +106,18 @@ metadata:
     app: pocket-id
   name: pocket-id
   namespace: pocket-id
+  annotations:
+    secret.reloader.stakater.com/reload: "pocket-id,pocket-id-db-password"
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: pocket-id
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -62,8 +127,19 @@ spec:
         runAsUser: 1000
         runAsGroup: 2000
         fsGroup: 2000
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: pocket-id
+        matchLabelKeys:
+        - pod-template-hash
       containers:
-      - env:
+      - name: pocket-id
+        image: ghcr.io/pocket-id/pocket-id:v2.6.2
+        env:
         - name: APP_URL
           value: "https://pocket-id.sonley.dev"
         - name: TRUST_PROXY
@@ -77,8 +153,15 @@ spec:
             secretKeyRef:
               name: pocket-id
               key: encryption_key
-        image: ghcr.io/pocket-id/pocket-id:v2.6.2
-        name: pocket-id
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pocket-id-db-password
+              key: password
+        - name: DB_CONNECTION_STRING
+          value: "postgres://pocketid:$(DB_PASSWORD)@pocket-id-postgres-rw:5432/pocketid"
+        - name: FILE_BACKEND
+          value: "database"
         resources:
           requests:
             cpu: "25m"
@@ -110,9 +193,6 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 5
           failureThreshold: 3
-        volumeMounts:
-        - mountPath: /app/data
-          name: pocket-id
         securityContext:
           allowPrivilegeEscalation: false
           runAsNonRoot: false
@@ -122,10 +202,6 @@ spec:
             drop:
             - ALL
       restartPolicy: Always
-      volumes:
-      - name: pocket-id
-        persistentVolumeClaim:
-          claimName: pocket-id
 ---
 apiVersion: v1
 kind: Service
@@ -166,7 +242,6 @@ spec:
           name: pocket-id
           namespace: pocket-id
           port: 1411
-
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
@@ -174,7 +249,7 @@ metadata:
   name: pocket-id
   namespace: pocket-id
 spec:
-  maxUnavailable: 1
+  minAvailable: 1
   selector:
     matchLabels:
       app: pocket-id
