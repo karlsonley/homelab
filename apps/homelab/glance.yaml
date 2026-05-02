@@ -138,7 +138,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Glance"
     gethomepage.dev/description: "Self-hosted dashboard"
-    gethomepage.dev/group: "More Applications"
+    gethomepage.dev/group: "Systems"
     gethomepage.dev/icon: "glance.png"
     gethomepage.dev/href: "https://glance.sonley.dev"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=glance"

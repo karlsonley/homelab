@@ -566,7 +566,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Immich"
     gethomepage.dev/description: "Photo Management"
-    gethomepage.dev/group: "Applications"
+    gethomepage.dev/group: "Home"
     gethomepage.dev/icon: "immich.png"
     gethomepage.dev/href: "https://immich.sonley.dev"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=immich-server"

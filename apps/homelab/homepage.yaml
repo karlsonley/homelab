@@ -89,10 +89,10 @@ data:
     statusStyle: dot
     useEqualHeights: true
     layout:
-      Applications:
+      Home:
         style: row
-        columns: 2
-      More Applications:
+        columns: 5
+      Productivity:
         style: row
         columns: 4
       Infrastructure:
@@ -101,9 +101,13 @@ data:
       Monitoring:
         style: row
         columns: 4
-      Widgets:
+      Systems:
         style: row
-        columns: 3
+        columns: 4
+    customCss: |
+      #information-widgets {
+        order: 10;
+      }
   widgets.yaml: |
     - kubernetes:
         cluster:
@@ -118,6 +122,11 @@ data:
           memory: true
           showLabel: true
   services.yaml: |
+    - Home:
+        - Home Assistant:
+            icon: home-assistant.png
+            href: https://home-assistant.sonley.dev
+            description: Home automation platform
     - Infrastructure:
         - Proxmox:
             icon: proxmox.png
@@ -127,11 +136,7 @@ data:
             icon: ugreen.png
             href: https://nas.sonley.dev
             description: Ugreen NAS
-    - More Applications:
-        - Home Assistant:
-            icon: home-assistant.png
-            href: https://home-assistant.sonley.dev
-            description: Home automation platform
+    - Systems:
         - Home Assistant Observer:
             icon: home-assistant.png
             href: https://ha-observer.sonley.dev

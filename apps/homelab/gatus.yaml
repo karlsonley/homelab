@@ -358,7 +358,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Status"
     gethomepage.dev/description: "Service Health"
-    gethomepage.dev/group: "Widgets"
+    gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "gatus.png"
     gethomepage.dev/href: "https://status.sonley.dev"
     gethomepage.dev/pod-selector: "app=gatus"
