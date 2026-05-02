@@ -219,7 +219,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Speedtest Tracker"
     gethomepage.dev/description: "Internet Performance"
-    gethomepage.dev/group: "Widgets"
+    gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "speedtest-tracker.png"
     gethomepage.dev/href: "https://speedtest.sonley.dev"
     gethomepage.dev/pod-selector: "app=speedtest-tracker"
