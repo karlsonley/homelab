@@ -292,11 +292,9 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Prometheus"
     gethomepage.dev/description: "Metrics"
-    gethomepage.dev/group: "Widgets"
+    gethomepage.dev/group: "Monitoring"
     gethomepage.dev/icon: "prometheus.png"
     gethomepage.dev/href: "https://prometheus.sonley.dev"
-    gethomepage.dev/widget.type: "prometheus"
-    gethomepage.dev/widget.url: "http://kube-prometheus-stack-prometheus.monitoring:9090"
 spec:
   entryPoints:
     - websecure
