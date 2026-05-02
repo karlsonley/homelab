@@ -109,15 +109,12 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "pocket-id,pocket-id-db-password"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: pocket-id
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+    type: Recreate
   template:
     metadata:
       labels:
@@ -127,15 +124,6 @@ spec:
         runAsUser: 1000
         runAsGroup: 2000
         fsGroup: 2000
-      topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app: pocket-id
-        matchLabelKeys:
-        - pod-template-hash
       containers:
       - name: pocket-id
         image: ghcr.io/pocket-id/pocket-id:v2.6.2
@@ -249,7 +237,7 @@ metadata:
   name: pocket-id
   namespace: pocket-id
 spec:
-  minAvailable: 1
+  maxUnavailable: 1
   selector:
     matchLabels:
       app: pocket-id
