@@ -10,7 +10,7 @@ metadata:
   namespace: pocket-id
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   storageClassName: longhorn
   resources:
     requests:
@@ -88,6 +88,28 @@ spec:
             memory: "512Mi"
         ports:
         - containerPort: 1411
+          name: http
+        startupProbe:
+          httpGet:
+            path: /
+            port: 1411
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 12
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 1411
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 1411
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 3
         volumeMounts:
         - mountPath: /app/data
           name: pocket-id
@@ -145,6 +167,17 @@ spec:
           namespace: pocket-id
           port: 1411
 
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: pocket-id
 ---
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
