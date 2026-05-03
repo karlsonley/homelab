@@ -39,12 +39,12 @@ spec:
   - secretKey: access_key
     remoteRef:
       key: name:homelab
-      property: velero_aws_access_key_id
+      property: velero_garage_access_key_id
       version: latest_enabled
   - secretKey: secret_key
     remoteRef:
       key: name:homelab
-      property: velero_aws_secret_access_key
+      property: velero_garage_secret_access_key
       version: latest_enabled
   - secretKey: kopia_password
     remoteRef:
@@ -85,16 +85,16 @@ spec:
       backupStorageLocation:
         - name: default
           provider: aws
-          bucket: stkmsvelerobackups
+          bucket: velero-backups
           config:
-            region: nl-ams
+            region: garage
             s3ForcePathStyle: true
-            s3Url: https://s3.nl-ams.scw.cloud
+            s3Url: http://10.0.2.100:3900
       volumeSnapshotLocation:
         - name: default
           provider: aws
           config:
-            region: nl-ams
+            region: garage
       defaultBackupStorageLocation: default
       defaultVolumeSnapshotLocations: aws:default
       features: EnableCSI
