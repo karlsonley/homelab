@@ -270,6 +270,11 @@ data:
         url: "http://n8n.n8n:5678/healthz"
         <<: *defaults
 
+      - name: Papra
+        group: Applications
+        url: "http://papra.papra:1221"
+        <<: *defaults
+
       - name: Speedtest Tracker
         group: Monitoring
         url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"
