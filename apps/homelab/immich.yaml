@@ -105,7 +105,7 @@ spec:
   affinity:
     podAntiAffinityType: required
   instances: 2
-  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:18.3-1.1.1
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.13-1.1.1
   primaryUpdateStrategy: unsupervised
   postgresql:
     shared_preload_libraries:
