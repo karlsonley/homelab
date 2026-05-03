@@ -9,7 +9,12 @@
     "helpers:pinGitHubActionDigests"
   ],
   "description": "Phase 1 + 2: all apps + infra image tags and infrastructure HelmRelease chart versions. Terraform providers (Phase 3) are deferred.",
-  "enabledManagers": ["kubernetes", "flux", "github-actions"],
+  "enabledManagers": ["kubernetes", "flux", "github-actions", "docker-compose"],
+  "docker-compose": {
+    "managerFilePatterns": [
+      "/^infrastructure/nas/.+\\.ya?ml$/"
+    ]
+  },
   "kubernetes": {
     "managerFilePatterns": [
       "/^apps/homelab/.+\\.yaml$/",
