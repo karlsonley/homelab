@@ -91,7 +91,7 @@ data:
     layout:
       Home:
         style: row
-        columns: 5
+        columns: 3
       Productivity:
         style: row
         columns: 4

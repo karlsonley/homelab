@@ -217,7 +217,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Papra"
     gethomepage.dev/description: "Document Management"
-    gethomepage.dev/group: "Productivity"
+    gethomepage.dev/group: "Home"
     gethomepage.dev/icon: "papra.png"
     gethomepage.dev/href: "https://papra.sonley.dev"
     gethomepage.dev/pod-selector: "app.kubernetes.io/name=papra"

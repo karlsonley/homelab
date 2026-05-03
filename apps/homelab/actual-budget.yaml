@@ -157,7 +157,7 @@ metadata:
   annotations:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Actual Budget"
-    gethomepage.dev/description: "Personal finance and budgeting"
+    gethomepage.dev/description: "Finance and budgeting"
     gethomepage.dev/group: "Home"
     gethomepage.dev/icon: "actual-budget.png"
     gethomepage.dev/href: "https://actual.sonley.dev"
