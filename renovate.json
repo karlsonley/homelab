@@ -49,8 +49,10 @@
   "packageRules": [
     {
       "description": "Group Immich components into a single PR",
-      "matchPackagePatterns": ["immich"],
-      "groupName": "immich"
+      "groupName": "immich",
+      "matchPackageNames": [
+        "/immich/"
+      ]
     },
     {
       "description": "ghcr.io images don't embed org.opencontainers.image.created, so Renovate can't evaluate minimumReleaseAge — disable the check to unblock PR creation",
