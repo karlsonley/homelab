@@ -42,6 +42,7 @@ spec:
       data:
         access_key_id: "{{ .access_key_id }}"
         secret_access_key: "{{ .secret_access_key }}"
+        region: "garage"
   data:
   - secretKey: access_key_id
     remoteRef:
@@ -53,6 +54,31 @@ spec:
       key: name:homelab
       property: cnpg_backup_secret_access_key
       version: latest_enabled
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: blocky-postgres
+  namespace: blocky
+spec:
+  configuration:
+    destinationPath: "s3://cnpg-backups/blocky-postgres"
+    endpointURL: "http://10.0.2.100:3900"
+    s3Credentials:
+      accessKeyId:
+        name: cnpg-backup-credentials
+        key: access_key_id
+      secretAccessKey:
+        name: cnpg-backup-credentials
+        key: secret_access_key
+      region:
+        name: cnpg-backup-credentials
+        key: region
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: "30d"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
@@ -74,22 +100,11 @@ spec:
       owner: blocky
       secret:
         name: blocky-db-password
-  backup:
-    barmanObjectStore:
-      destinationPath: "s3://cnpg-backups/blocky-postgres"
-      endpointURL: "http://10.0.2.100:3900"
-      s3Credentials:
-        accessKeyId:
-          name: cnpg-backup-credentials
-          key: access_key_id
-        secretAccessKey:
-          name: cnpg-backup-credentials
-          key: secret_access_key
-      wal:
-        compression: gzip
-      data:
-        compression: gzip
-    retentionPolicy: "30d"
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: blocky-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -404,3 +419,6 @@ spec:
   backupOwnerReference: self
   cluster:
     name: blocky-postgres
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
