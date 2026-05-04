@@ -74,7 +74,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: actual-budget
-          image: actualbudget/actual-server:26.4.0
+          image: actualbudget/actual-server:26.5.0
           ports:
             - containerPort: 5006
               name: http
