@@ -40,7 +40,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: blocky-ui
-          image: ghcr.io/gabeduartem/blocky-ui:1.6.1
+          image: ghcr.io/gabeduartem/blocky-ui:1.7.0
           env:
             - name: BLOCKY_API_URL
               value: "https://blocky.sonley.dev"
