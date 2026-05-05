@@ -314,7 +314,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: n8n
-        image: ghcr.io/n8n-io/n8n:2.17.0
+        image: ghcr.io/n8n-io/n8n:2.19.2
         ports:
         - containerPort: 5678
           name: http
@@ -463,7 +463,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: n8n-worker
-        image: ghcr.io/n8n-io/n8n:2.17.0
+        image: ghcr.io/n8n-io/n8n:2.19.2
         command: ["/docker-entrypoint.sh"]
         args: ["worker"]
         ports:
