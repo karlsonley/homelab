@@ -1,0 +1,28 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: node-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: node.temperature
+      rules:
+        - alert: NodeHighTemperature
+          expr: node_hwmon_temp_celsius > 85
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High temperature on {{ $labels.instance }}"
+            description: "Sensor {{ $labels.sensor }} on chip {{ $labels.chip }} has been above 85°C for 2 minutes (current: {{ $value | printf \"%.1f\" }}°C)."
+        - alert: NodeCriticalTemperature
+          expr: node_hwmon_temp_celsius > 90
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Critical temperature on {{ $labels.instance }}"
+            description: "Sensor {{ $labels.sensor }} on chip {{ $labels.chip }} has been above 90°C for 1 minute (current: {{ $value | printf \"%.1f\" }}°C). Immediate action required."
