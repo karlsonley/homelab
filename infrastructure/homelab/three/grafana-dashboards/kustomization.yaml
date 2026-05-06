@@ -14,5 +14,6 @@ configMapGenerator:
   - dashboards/metallb.json
   - dashboards/traefik.json
   - dashboards/cloudnative-pg.json
+  - dashboards/hwmon.json
   options:
     disableNameSuffixHash: true
