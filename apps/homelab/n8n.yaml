@@ -258,7 +258,7 @@ spec:
         resources:
           requests:
             memory: "64Mi"
-            cpu: "25m"
+            cpu: "40m"
           limits:
             memory: "256Mi"
             cpu: "500m"
@@ -411,7 +411,7 @@ spec:
           mountPath: /home/node/.n8n
         resources:
           requests:
-            memory: "256Mi"
+            memory: "600Mi"
             cpu: "50m"
           limits:
             memory: "1Gi"
@@ -540,7 +540,7 @@ spec:
           failureThreshold: 3
         resources:
           requests:
-            memory: "256Mi"
+            memory: "350Mi"
             cpu: "50m"
           limits:
             memory: "1Gi"
@@ -550,6 +550,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: n8n-worker
+
   namespace: n8n
 spec:
   minAvailable: 1
