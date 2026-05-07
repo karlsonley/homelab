@@ -146,6 +146,7 @@ spec:
   affinity:
     podAntiAffinityType: required
   instances: 2
+  maxSyncReplicas: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
   storage:
