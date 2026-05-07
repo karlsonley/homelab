@@ -236,7 +236,7 @@ spec:
         image: docker.io/valkey/valkey:9.0.4-alpine
         resources:
           requests:
-            cpu: "25m"
+            cpu: "50m"
             memory: "128Mi"
           limits:
             cpu: "500m"
@@ -327,8 +327,8 @@ spec:
         image: ghcr.io/immich-app/immich-machine-learning:v2.7.5
         resources:
           requests:
-            cpu: "100m"
-            memory: "2Gi"
+            cpu: "30m"
+            memory: "1500Mi"
           limits:
             cpu: "2000m"
             memory: "8Gi"
@@ -456,8 +456,8 @@ spec:
           image: ghcr.io/immich-app/immich-server:v2.7.5
           resources:
             requests:
-              cpu: "50m"
-              memory: "512Mi"
+              cpu: "40m"
+              memory: "2500Mi"
             limits:
               cpu: "2000m"
               memory: "4Gi"
