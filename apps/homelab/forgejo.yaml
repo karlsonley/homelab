@@ -408,7 +408,10 @@ spec:
                 echo "Waiting for Forgejo..."; sleep 5
               done
               ID=$(forgejo --config /tmp/conf/app.ini admin auth list 2>/dev/null | grep "pocket-id" | awk '{print $1}')
-              [ -n "$ID" ] && forgejo --config /tmp/conf/app.ini admin auth delete --id "$ID"
+              if [ -n "$ID" ]; then
+                echo "pocket-id auth provider already exists (id=$ID), nothing to do"
+                exit 0
+              fi
               forgejo --config /tmp/conf/app.ini admin auth add-oauth \
                 --name "pocket-id" \
                 --provider openidConnect \
