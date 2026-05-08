@@ -294,6 +294,11 @@ data:
         url: "https://vaultwarden.sonley.dev/alive"
         <<: *defaults
 
+      - name: Forgejo
+        group: Infrastructure
+        url: "https://forgejo.sonley.dev/-/health"
+        <<: *defaults
+
       - name: Speedtest Tracker
         group: Monitoring
         url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"

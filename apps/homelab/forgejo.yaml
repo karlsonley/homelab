@@ -1,0 +1,444 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: forgejo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: forgejo-db-password
+  namespace: forgejo
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: forgejo-db-password
+    template:
+      data:
+        username: "forgejo"
+        password: "{{ .password }}"
+  data:
+  - secretKey: password
+    remoteRef:
+      key: name:homelab
+      property: forgejo_db_password
+      version: latest_enabled
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cnpg-backup-credentials
+  namespace: forgejo
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: cnpg-backup-credentials
+    template:
+      data:
+        access_key_id: "{{ .access_key_id }}"
+        secret_access_key: "{{ .secret_access_key }}"
+        region: "garage"
+  data:
+  - secretKey: access_key_id
+    remoteRef:
+      key: name:homelab
+      property: cnpg_backup_access_key_id
+      version: latest_enabled
+  - secretKey: secret_access_key
+    remoteRef:
+      key: name:homelab
+      property: cnpg_backup_secret_access_key
+      version: latest_enabled
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: forgejo-oidc
+  namespace: forgejo
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: forgejo-oidc
+    template:
+      data:
+        client_id: "{{ .client_id }}"
+        client_secret: "{{ .client_secret }}"
+  data:
+  - secretKey: client_id
+    remoteRef:
+      key: name:homelab
+      property: pocket_id_oidc_client_id
+      version: latest_enabled
+  - secretKey: client_secret
+    remoteRef:
+      key: name:homelab
+      property: pocket_id_oidc_client_secret
+      version: latest_enabled
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+spec:
+  configuration:
+    destinationPath: "s3://cnpg-backups/forgejo-postgres"
+    endpointURL: "http://10.0.2.100:3900"
+    s3Credentials:
+      accessKeyId:
+        name: cnpg-backup-credentials
+        key: access_key_id
+      secretAccessKey:
+        name: cnpg-backup-credentials
+        key: secret_access_key
+      region:
+        name: cnpg-backup-credentials
+        key: region
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: "30d"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+spec:
+  affinity:
+    podAntiAffinityType: required
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3
+  primaryUpdateStrategy: unsupervised
+  storage:
+    size: 5Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: forgejo
+      owner: forgejo
+      secret:
+        name: forgejo-db-password
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: forgejo-postgres
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+spec:
+  schedule: "0 0 2 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: forgejo-postgres
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: forgejo-postgres
+  namespace: forgejo
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: forgejo-postgres
+  podMetricsEndpoints:
+  - port: metrics
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo
+  namespace: forgejo
+  annotations:
+    secret.reloader.stakater.com/reload: "forgejo-db-password,forgejo-oidc"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: forgejo
+    spec:
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: forgejo
+          image: codeberg.org/forgejo/forgejo:15.0.1
+          ports:
+            - containerPort: 3000
+              name: http
+            - containerPort: 2222
+              name: ssh
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: FORGEJO__database__DB_TYPE
+              value: "postgres"
+            - name: FORGEJO__database__HOST
+              value: "forgejo-postgres-rw:5432"
+            - name: FORGEJO__database__NAME
+              value: "forgejo"
+            - name: FORGEJO__database__USER
+              value: "forgejo"
+            - name: FORGEJO__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-db-password
+                  key: password
+            - name: FORGEJO__database__SSL_MODE
+              value: "disable"
+            - name: FORGEJO__server__DOMAIN
+              value: "forgejo.sonley.dev"
+            - name: FORGEJO__server__ROOT_URL
+              value: "https://forgejo.sonley.dev"
+            - name: FORGEJO__server__HTTP_PORT
+              value: "3000"
+            - name: FORGEJO__server__DISABLE_SSH
+              value: "false"
+            - name: FORGEJO__server__SSH_DOMAIN
+              value: "forgejo.sonley.dev"
+            - name: FORGEJO__server__SSH_PORT
+              value: "22"
+            - name: FORGEJO__server__SSH_LISTEN_PORT
+              value: "2222"
+            - name: FORGEJO__security__INSTALL_LOCK
+              value: "true"
+            - name: FORGEJO__service__DISABLE_REGISTRATION
+              value: "false"
+            - name: FORGEJO__service__ALLOW_ONLY_EXTERNAL_REGISTRATION
+              value: "true"
+            - name: FORGEJO__service__REQUIRE_SIGNIN_VIEW
+              value: "true"
+            - name: FORGEJO__service__DEFAULT_AUTH
+              value: "pocket-id"
+            - name: FORGEJO__service__REDIRECT_OTHER_SIGN_IN
+              value: "true"
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-oidc
+                  key: client_id
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-oidc
+                  key: client_secret
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: forgejo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forgejo
+  namespace: forgejo
+  labels:
+    app.kubernetes.io/name: forgejo
+spec:
+  selector:
+    app.kubernetes.io/name: forgejo
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+    - port: 2222
+      targetPort: 2222
+      name: ssh
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: forgejo-ssh
+  namespace: forgejo
+spec:
+  entryPoints:
+    - ssh
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: forgejo
+          port: 2222
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: forgejo
+  namespace: forgejo
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Forgejo"
+    gethomepage.dev/description: "Git server"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "forgejo.png"
+    gethomepage.dev/href: "https://forgejo.sonley.dev"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=forgejo"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`forgejo.sonley.dev`)
+      services:
+        - kind: Service
+          name: forgejo
+          namespace: forgejo
+          port: 3000
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: forgejo
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: forgejo-configure-oidc
+  namespace: forgejo
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: OnFailure
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: configure-oidc
+          image: codeberg.org/forgejo/forgejo:15.0.1
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mkdir -p /tmp/conf
+              {
+                echo '[database]'
+                echo 'DB_TYPE  = postgres'
+                echo 'HOST     = forgejo-postgres-rw:5432'
+                echo 'NAME     = forgejo'
+                echo 'USER     = forgejo'
+                printf 'PASSWD   = %s\n' "$FORGEJO__database__PASSWD"
+                echo 'SSL_MODE = disable'
+                echo '[security]'
+                echo 'INSTALL_LOCK = true'
+                echo '[server]'
+                echo 'APP_DATA_PATH = /tmp/forgejo-data'
+              } > /tmp/conf/app.ini
+              until nc -z forgejo.forgejo 3000 2>/dev/null; do
+                echo "Waiting for Forgejo..."; sleep 5
+              done
+              ID=$(forgejo --config /tmp/conf/app.ini admin auth list 2>/dev/null | grep "pocket-id" | awk '{print $1}')
+              [ -n "$ID" ] && forgejo --config /tmp/conf/app.ini admin auth delete --id "$ID"
+              forgejo --config /tmp/conf/app.ini admin auth add-oauth \
+                --name "pocket-id" \
+                --provider openidConnect \
+                --key "$OIDC_CLIENT_ID" \
+                --secret "$OIDC_CLIENT_SECRET" \
+                --auto-discover-url "https://pocket-id.sonley.dev/.well-known/openid-configuration" \
+                --scopes "openid,profile,email"
+          env:
+            - name: FORGEJO__database__DB_TYPE
+              value: "postgres"
+            - name: FORGEJO__database__HOST
+              value: "forgejo-postgres-rw:5432"
+            - name: FORGEJO__database__NAME
+              value: "forgejo"
+            - name: FORGEJO__database__USER
+              value: "forgejo"
+            - name: FORGEJO__database__PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-db-password
+                  key: password
+            - name: FORGEJO__database__SSL_MODE
+              value: "disable"
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-oidc
+                  key: client_id
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: forgejo-oidc
+                  key: client_secret
