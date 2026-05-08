@@ -86,6 +86,21 @@ spec:
       key: name:homelab
       property: pocket_id_oidc_client_secret
       version: latest_enabled
+  - secretKey: smtp_host
+    remoteRef:
+      key: name:homelab
+      property: tem_smtp_host
+      version: latest_enabled
+  - secretKey: smtp_user
+    remoteRef:
+      key: name:homelab
+      property: tem_smtp_user
+      version: latest_enabled
+  - secretKey: smtp_password
+    remoteRef:
+      key: name:homelab
+      property: tem_smtp_password
+      version: latest_enabled
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -152,6 +167,29 @@ spec:
                 secretKeyRef:
                   name: papra-secrets
                   key: auth_providers_customs
+            - name: EMAILS_DRIVER
+              value: smtp
+            - name: EMAILS_FROM_ADDRESS
+              value: "Papra <papra@sonley.dev>"
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: papra-secrets
+                  key: smtp_host
+            - name: SMTP_PORT
+              value: "465"
+            - name: SMTP_SECURE
+              value: "true"
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: papra-secrets
+                  key: smtp_user
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: papra-secrets
+                  key: smtp_password
           startupProbe:
             httpGet:
               path: /
