@@ -57,7 +57,7 @@ spec:
             },
             "storageTemplate": {
               "enabled": true,
-              "template": "{{y}}/{{MM}}/{{dd}}/{{filename}}"
+              "template": "{{"{{y}}/{{MM}}/{{dd}}/{{filename}}"}}"
             }
           }
   data:
