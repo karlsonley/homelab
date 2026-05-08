@@ -299,6 +299,14 @@ spec:
             secretKeyRef:
               name: mail-archiver-secrets
               key: admin_email
+        - name: BandwidthTracking__Enabled
+          value: "true"
+        - name: BandwidthTracking__DailyLimitMb
+          value: "2500"
+        - name: BandwidthTracking__WarningThresholdPercent
+          value: "80"
+        - name: BandwidthTracking__PauseHoursOnLimit
+          value: "24"
         startupProbe:
           httpGet:
             path: /
