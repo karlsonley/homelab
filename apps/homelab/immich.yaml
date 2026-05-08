@@ -54,6 +54,10 @@ spec:
             },
             "passwordLogin": {
               "enabled": false
+            },
+            "storageTemplate": {
+              "enabled": true,
+              "template": "{{y}}/{{MM}}/{{dd}}/{{filename}}"
             }
           }
   data:
