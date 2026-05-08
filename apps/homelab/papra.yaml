@@ -70,6 +70,9 @@ spec:
       data:
         auth_secret: "{{ .auth_secret }}"
         auth_providers_customs: '[{"providerId":"pocket-id","providerName":"Pocket ID","clientId":"{{ .oidc_client_id }}","clientSecret":"{{ .oidc_client_secret }}","type":"oidc","discoveryUrl":"https://pocket-id.sonley.dev/.well-known/openid-configuration","scopes":["openid","profile","email"]}]'
+        smtp_host: "{{ .smtp_host }}"
+        smtp_user: "{{ .smtp_user }}"
+        smtp_password: "{{ .smtp_password }}"
   data:
   - secretKey: auth_secret
     remoteRef:
