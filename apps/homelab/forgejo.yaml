@@ -375,7 +375,6 @@ metadata:
   name: forgejo-configure-oidc
   namespace: forgejo
 spec:
-  ttlSecondsAfterFinished: 300
   template:
     spec:
       restartPolicy: OnFailure
