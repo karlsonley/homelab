@@ -135,6 +135,11 @@ spec:
             readTimeout: 0s
             writeTimeout: 0s
             idleTimeout: 180s
+      ssh:
+        port: 2022
+        expose:
+          default: true
+        exposedPort: 22
       metrics:
         port: 9100
         expose:
