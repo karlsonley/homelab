@@ -96,14 +96,16 @@ spec:
     size: 5Gi
     storageClass: nfs
   bootstrap:
-    recovery:
-      source: blocky-postgres
-  externalClusters:
-    - name: blocky-postgres
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: blocky-postgres
+    initdb:
+      database: blocky
+      owner: blocky
+      secret:
+        name: blocky-db-password
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: blocky-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
