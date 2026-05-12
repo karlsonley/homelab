@@ -110,6 +110,26 @@ spec:
     valuesKey: oidc_client_secret
     targetPath: grafana.grafana\.ini.auth\.generic_oauth.client_secret
   values:
+    defaultRules:
+      disabled:
+        # Structural overcommit on asymmetric cluster (one 8-core vs two 4-core nodes).
+        # Replaced below with a tuned version that allows up to 2 CPU cores of overcommit.
+        KubeCPUOvercommit: true
+    additionalPrometheusRulesMap:
+      custom-overcommit:
+        groups:
+          - name: kubernetes-resources-custom
+            rules:
+              - alert: KubeCPUOvercommit
+                annotations:
+                  description: Cluster has overcommitted CPU resource requests for Pods by {{ $value }} CPU shares and cannot tolerate node failure.
+                  runbook_url: https://runbooks.prometheus-operator.dev/runbooks/kubernetes/kubecpuovercommit
+                  summary: Cluster has overcommitted CPU resource requests.
+                expr: |-
+                  sum(namespace_cpu:kube_pod_container_resource_requests:sum{}) - (sum(kube_node_status_allocatable{resource="cpu"}) - max(kube_node_status_allocatable{resource="cpu"})) > 2
+                for: 5m
+                labels:
+                  severity: warning
     alertmanager:
       alertmanagerSpec:
         externalUrl: "https://alertmanager.sonley.dev"
