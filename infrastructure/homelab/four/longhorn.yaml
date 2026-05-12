@@ -36,7 +36,7 @@ spec:
       interval: 5m
   values:
     defaultSettings:
-      defaultReplicaCount: "3"
+      defaultReplicaCount: "2"
     metrics:
       serviceMonitor:
         enabled: true
