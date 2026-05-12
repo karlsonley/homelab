@@ -104,10 +104,6 @@ spec:
         name: barman-cloud.cloudnative-pg.io
         parameters:
           barmanObjectName: blocky-postgres
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      parameters:
-        barmanObjectName: blocky-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
