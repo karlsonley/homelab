@@ -120,7 +120,7 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
     initdb:
       database: speedtest
@@ -155,7 +155,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn
+  storageClassName: nfs
   resources:
     requests:
       storage: 5Gi
