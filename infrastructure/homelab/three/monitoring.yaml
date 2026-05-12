@@ -174,14 +174,15 @@ spec:
       prometheusSpec:
         podMonitorSelectorNilUsesHelmValues: false
         serviceDiscoveryRole: EndpointSlice
-        retention: 30d
+        retention: 14d
+        walCompression: true
         resources:
           requests:
             cpu: 100m
-            memory: 1Gi
+            memory: 2Gi
           limits:
             cpu: "1"
-            memory: 4Gi
+            memory: 2500Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
