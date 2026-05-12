@@ -55,11 +55,11 @@ spec:
               value: "postgresql://blocky:$(DB_PASSWORD)@blocky-postgres-rw:5432/blocky?sslmode=disable"
           resources:
             requests:
-              cpu: "40m"
-              memory: "64Mi"
+              cpu: "35m"
+              memory: "250Mi"
             limits:
-              cpu: "200m"
-              memory: "256Mi"
+              cpu: "500m"
+              memory: "384Mi"
           ports:
             - containerPort: 3000
               name: http
