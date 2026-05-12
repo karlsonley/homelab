@@ -11,7 +11,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn
+  storageClassName: nfs
   resources:
     requests:
       storage: 5Gi
@@ -24,7 +24,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn
+  storageClassName: nfs
   resources:
     requests:
       storage: 2Gi
@@ -148,7 +148,7 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
     initdb:
       database: n8n
