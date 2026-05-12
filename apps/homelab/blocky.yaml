@@ -94,13 +94,16 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
-    initdb:
-      database: blocky
-      owner: blocky
-      secret:
-        name: blocky-db-password
+    recovery:
+      source: blocky-postgres
+  externalClusters:
+    - name: blocky-postgres
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: blocky-postgres
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
