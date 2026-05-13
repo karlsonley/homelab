@@ -201,7 +201,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: forgejo
-          image: codeberg.org/forgejo/forgejo:15.0.1
+          image: codeberg.org/forgejo/forgejo:15.0.2
           ports:
             - containerPort: 3000
               name: http
