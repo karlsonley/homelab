@@ -292,7 +292,7 @@ spec:
           mountPath: /app/data
         resources:
           requests:
-            memory: "512Mi"
+            memory: "400Mi"
             cpu: "25m"
           limits:
             memory: "1Gi"
