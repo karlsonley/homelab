@@ -289,6 +289,11 @@ data:
         url: "http://papra.papra:1221"
         <<: *defaults
 
+      - name: Wallos
+        group: Applications
+        url: "http://wallos.wallos/health.php"
+        <<: *defaults
+
       - name: Vaultwarden
         group: Applications
         url: "https://vaultwarden.sonley.dev/alive"
