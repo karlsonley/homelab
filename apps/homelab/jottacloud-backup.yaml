@@ -59,7 +59,14 @@ data:
     }
 
     run_ssh "Checking rclone" "rclone version"
-    run_ssh "Syncing /volume1" "rclone sync /volume1 jottacloud:nas_backup --verbose --stats 1m --transfers 4 --checkers 8 --filter '- /lost+found/**' --filter '- /@*/**' --filter '- /garage/meta/**'"
+    run_ssh "Syncing /volume1" "rclone sync /volume1 jottacloud:nas_backup --verbose --stats 1m --transfers 4 --checkers 8 \
+      --filter '- /lost+found/**' \
+      --filter '- /@*/**' \
+      --filter '- /garage/meta/**' \
+      --filter '- /k8s/*/pgdata/' \
+      --filter '- /k8s/*/keys/' \
+      --filter '- /k8s/*/attachments/' \
+      --filter '- **/logrotate.status'"
 
     echo "=== Backup completed successfully ==="
 ---
