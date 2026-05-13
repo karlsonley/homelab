@@ -1,0 +1,166 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: wallos
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wallos-db
+  namespace: wallos
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wallos-logos
+  namespace: wallos
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallos
+  namespace: wallos
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wallos
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wallos
+    spec:
+      securityContext:
+        fsGroup: 33
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: wallos
+          image: bellamy/wallos:4.8.4
+          ports:
+            - containerPort: 80
+              name: http
+          securityContext:
+            allowPrivilegeEscalation: false
+          env:
+            - name: TZ
+              value: "Europe/Paris"
+          livenessProbe:
+            httpGet:
+              path: /health.php
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 60
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health.php
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: db
+              mountPath: /var/www/html/db
+            - name: logos
+              mountPath: /var/www/html/images/uploads/logos
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "25m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: db
+          persistentVolumeClaim:
+            claimName: wallos-db
+        - name: logos
+          persistentVolumeClaim:
+            claimName: wallos-logos
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wallos
+  namespace: wallos
+  labels:
+    app.kubernetes.io/name: wallos
+spec:
+  selector:
+    app.kubernetes.io/name: wallos
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wallos
+  namespace: wallos
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Wallos"
+    gethomepage.dev/description: "Subscription tracker"
+    gethomepage.dev/group: "Home"
+    gethomepage.dev/icon: "wallos.png"
+    gethomepage.dev/href: "https://wallos.sonley.dev"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=wallos"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`wallos.sonley.dev`)
+      middlewares:
+        - name: oidc-auth
+          namespace: traefik
+      services:
+        - kind: Service
+          name: wallos
+          namespace: wallos
+          port: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: wallos
+  namespace: wallos
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wallos
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: wallos
+  namespace: wallos
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: wallos
+  updatePolicy:
+    updateMode: "Off"
