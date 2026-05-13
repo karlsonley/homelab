@@ -341,7 +341,7 @@ spec:
           subPath: exports
         resources:
           requests:
-            memory: "512Mi"
+            memory: "350Mi"
             cpu: "75m"
           limits:
             memory: "2Gi"
