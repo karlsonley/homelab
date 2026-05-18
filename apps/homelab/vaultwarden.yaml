@@ -11,8 +11,8 @@ metadata:
   namespace: vaultwarden
 spec:
   accessModes:
-    - ReadWriteMany
-  storageClassName: longhorn
+    - ReadWriteOnce
+  storageClassName: nfs
   resources:
     requests:
       storage: 5Gi
@@ -150,18 +150,16 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 1Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
-    initdb:
-      database: vaultwarden
-      owner: vaultwarden
-      secret:
-        name: vaultwarden-db-password
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: vaultwarden-postgres
+    recovery:
+      source: vaultwarden-postgres
+  externalClusters:
+    - name: vaultwarden-postgres
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: vaultwarden-postgres
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
@@ -199,9 +197,9 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "vaultwarden"
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
-    type: RollingUpdate
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: vaultwarden
@@ -210,13 +208,6 @@ spec:
       labels:
         app.kubernetes.io/name: vaultwarden
     spec:
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: vaultwarden
       securityContext:
         fsGroup: 1000
         seccompProfile:
@@ -342,7 +333,7 @@ metadata:
   name: vaultwarden
   namespace: vaultwarden
 spec:
-  minAvailable: 1
+  maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: vaultwarden
