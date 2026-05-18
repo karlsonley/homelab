@@ -41,6 +41,7 @@ spec:
       - retrans=2
       - actimeo=30
       - lookupcache=positive
+      - nolock
     storageClass:
       name: nfs
       defaultClass: false
