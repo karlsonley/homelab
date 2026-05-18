@@ -152,14 +152,16 @@ spec:
     size: 1Gi
     storageClass: nfs
   bootstrap:
-    recovery:
-      source: vaultwarden-postgres
-  externalClusters:
-    - name: vaultwarden-postgres
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: vaultwarden-postgres
+    initdb:
+      database: vaultwarden
+      owner: vaultwarden
+      secret:
+        name: vaultwarden-db-password
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: vaultwarden-postgres
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
