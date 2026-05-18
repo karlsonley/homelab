@@ -12,7 +12,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn
+  storageClassName: nfs
   resources:
     requests:
       storage: 20Gi
@@ -135,18 +135,16 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
-    initdb:
-      database: forgejo
-      owner: forgejo
-      secret:
-        name: forgejo-db-password
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: forgejo-postgres
+    recovery:
+      source: forgejo-postgres
+  externalClusters:
+    - name: forgejo-postgres
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: forgejo-postgres
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
