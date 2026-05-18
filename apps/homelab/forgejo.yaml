@@ -139,6 +139,8 @@ spec:
   bootstrap:
     recovery:
       source: forgejo-postgres
+      recoveryTarget:
+        backupID: forgejo-postgres-20260518020000
   externalClusters:
     - name: forgejo-postgres
       plugin:
