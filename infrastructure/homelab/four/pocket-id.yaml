@@ -11,7 +11,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn
+  storageClassName: nfs
   resources:
     requests:
       storage: 500Mi
@@ -129,18 +129,18 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
-    initdb:
-      database: pocketid
-      owner: pocketid
-      secret:
-        name: pocket-id-db-password
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: pocket-id-postgres
+    recovery:
+      source: pocket-id-postgres
+      recoveryTarget:
+        backupID: "20260519T194214"
+  externalClusters:
+    - name: pocket-id-postgres
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: pocket-id-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -166,7 +166,7 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "pocket-id,pocket-id-db-password"
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: pocket-id
