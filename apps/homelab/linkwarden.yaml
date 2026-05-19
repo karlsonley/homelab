@@ -153,16 +153,16 @@ spec:
     size: 5Gi
     storageClass: nfs
   bootstrap:
-    recovery:
-      source: linkwarden-postgres
-      recoveryTarget:
-        backupID: "20260518T031001"
-  externalClusters:
-    - name: linkwarden-postgres
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: linkwarden-postgres
+    initdb:
+      database: linkwarden
+      owner: linkwarden
+      secret:
+        name: linkwarden-db-password
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: linkwarden-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -199,7 +199,7 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "linkwarden-secrets,linkwarden-db-password,linkwarden-oidc"
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
