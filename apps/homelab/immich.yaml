@@ -145,16 +145,19 @@ spec:
     size: 20Gi
     storageClass: nfs
   bootstrap:
-    recovery:
-      source: immich-postgres
-      recoveryTarget:
-        backupID: "20260519T172759"
-  externalClusters:
-    - name: immich-postgres
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: immich-postgres
+    initdb:
+      database: immich
+      owner: immich
+      secret:
+        name: immich-db-password
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE
+        - CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: immich-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -212,7 +215,7 @@ metadata:
   name: immich-redis
   namespace: immich
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -303,7 +306,7 @@ metadata:
   name: immich-machine-learning
   namespace: immich
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
@@ -420,7 +423,7 @@ metadata:
   name: immich-server
   namespace: immich
 spec:
-  replicas: 0
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
