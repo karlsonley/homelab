@@ -109,16 +109,18 @@ spec:
     size: 5Gi
     storageClass: nfs
   bootstrap:
-    recovery:
-      source: mealie-postgres
-      recoveryTarget:
-        backupID: "20260519T183214"
-  externalClusters:
-    - name: mealie-postgres
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: mealie-postgres
+    initdb:
+      database: mealie
+      owner: mealie
+      secret:
+        name: mealie-db-password
+      postInitSQL:
+        - GRANT SET ON PARAMETER session_replication_role TO mealie
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: mealie-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -171,7 +173,7 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "mealie-db-password,mealie-oidc"
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
