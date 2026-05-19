@@ -151,18 +151,18 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
-    initdb:
-      database: linkwarden
-      owner: linkwarden
-      secret:
-        name: linkwarden-db-password
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: linkwarden-postgres
+    recovery:
+      source: linkwarden-postgres
+      recoveryTarget:
+        backupID: "20260519T175251"
+  externalClusters:
+    - name: linkwarden-postgres
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: linkwarden-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
