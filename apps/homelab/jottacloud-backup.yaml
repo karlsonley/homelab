@@ -69,6 +69,10 @@ data:
       --filter '- /k8s/*/keys/' \
       --filter '- /k8s/*/attachments/' \
       --filter '- /k8s/forgejo-*/gitea/jwt/' \
+      --filter '- /k8s/forgejo-*/gitea/actions_id_token/' \
+      --filter '- /k8s/forgejo-*/gitea/conf/' \
+      --filter '- /k8s/forgejo-*/gitea/indexers/' \
+      --filter '- /k8s/*-redis-data*/**' \
       --filter '- /k8s/monitoring-*/**' \
       --filter '- **/logrotate.status' \
       --filter '- /k8s/n8n-*/config'"
