@@ -113,7 +113,7 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "papra-secrets"
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: Recreate
   selector:
