@@ -72,7 +72,7 @@ spec:
           memory: 2Gi
       persistence:
         enabled: true
-        storageClass: longhorn
+        storageClass: nfs
         size: 10Gi
     backend:
       replicas: 0
