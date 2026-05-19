@@ -156,7 +156,7 @@ spec:
     recovery:
       source: linkwarden-postgres
       recoveryTarget:
-        backupID: "20260519T031001"
+        backupID: "20260518T031001"
   externalClusters:
     - name: linkwarden-postgres
       plugin:
