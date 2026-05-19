@@ -197,11 +197,6 @@ data:
         url: "http://kube-prometheus-stack-alertmanager.monitoring:9093/-/healthy"
         <<: *defaults
 
-      - name: Longhorn
-        group: Infrastructure
-        url: "http://longhorn-frontend.longhorn:80"
-        <<: *defaults
-
       - name: Homepage
         group: Infrastructure
         url: "https://homepage.sonley.dev"
