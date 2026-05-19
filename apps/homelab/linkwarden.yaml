@@ -186,7 +186,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn
+  storageClassName: nfs
   resources:
     requests:
       storage: 5Gi
@@ -199,7 +199,7 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "linkwarden-secrets,linkwarden-db-password,linkwarden-oidc"
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   selector:
