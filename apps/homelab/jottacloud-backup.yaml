@@ -60,12 +60,16 @@ data:
 
     run_ssh "Checking rclone" "rclone version"
     run_ssh "Syncing /volume1" "rclone sync /volume1 jottacloud:nas_backup --verbose --stats 1m --transfers 4 --checkers 8 \
-      --filter '- /lost+found/**' \
+      --filter '- lost+found/' \
       --filter '- /@*/**' \
       --filter '- /garage/meta/**' \
       --filter '- /k8s/*/pgdata/' \
+      --filter '- /k8s/*/pgdata_*/' \
+      --filter '- /k8s/*/wal/' \
       --filter '- /k8s/*/keys/' \
       --filter '- /k8s/*/attachments/' \
+      --filter '- /k8s/forgejo-*/gitea/jwt/' \
+      --filter '- /k8s/monitoring-*/**' \
       --filter '- **/logrotate.status' \
       --filter '- /k8s/n8n-*/config'"
 
