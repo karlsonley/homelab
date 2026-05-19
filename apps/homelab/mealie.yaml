@@ -6,12 +6,12 @@ metadata:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mealie-data-rwx
+  name: mealie-data
   namespace: mealie
 spec:
   accessModes:
-    - ReadWriteMany
-  storageClassName: longhorn
+    - ReadWriteOnce
+  storageClassName: nfs
   resources:
     requests:
       storage: 10Gi
@@ -107,20 +107,18 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 5Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
-    initdb:
-      database: mealie
-      owner: mealie
-      secret:
-        name: mealie-db-password
-      postInitSQL:
-        - GRANT SET ON PARAMETER session_replication_role TO mealie
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: mealie-postgres
+    recovery:
+      source: mealie-postgres
+      recoveryTarget:
+        backupID: "20260519T183214"
+  externalClusters:
+    - name: mealie-postgres
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: mealie-postgres
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
@@ -173,12 +171,9 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "mealie-db-password,mealie-oidc"
 spec:
-  replicas: 2
+  replicas: 0
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: mealie
@@ -187,15 +182,6 @@ spec:
       labels:
         app.kubernetes.io/name: mealie
     spec:
-      topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app.kubernetes.io/name: mealie
-        matchLabelKeys:
-        - pod-template-hash
       securityContext:
         runAsNonRoot: true
         runAsUser: 911
@@ -300,7 +286,7 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: mealie-data-rwx
+          claimName: mealie-data
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
@@ -308,7 +294,7 @@ metadata:
   name: mealie
   namespace: mealie
 spec:
-  minAvailable: 1
+  maxUnavailable: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: mealie
