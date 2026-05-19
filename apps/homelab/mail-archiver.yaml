@@ -143,18 +143,18 @@ spec:
   primaryUpdateStrategy: unsupervised
   storage:
     size: 10Gi
-    storageClass: longhorn
+    storageClass: nfs
   bootstrap:
-    initdb:
-      database: mailarchiver
-      owner: mailarchiver
-      secret:
-        name: mail-archiver-db-password
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: mail-archiver-postgres
+    recovery:
+      source: mail-archiver-postgres
+      recoveryTarget:
+        backupID: "20260519T152723"
+  externalClusters:
+    - name: mail-archiver-postgres
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: mail-archiver-postgres
 ---
 apiVersion: v1
 kind: PersistentVolume
