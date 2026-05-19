@@ -186,7 +186,7 @@ spec:
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: longhorn
+              storageClassName: nfs
               accessModes:
                 - ReadWriteOnce
               resources:
