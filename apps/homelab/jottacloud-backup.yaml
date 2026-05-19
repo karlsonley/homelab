@@ -72,6 +72,8 @@ data:
       --filter '- /k8s/forgejo-*/gitea/actions_id_token/' \
       --filter '- /k8s/forgejo-*/gitea/conf/' \
       --filter '- /k8s/forgejo-*/gitea/indexers/' \
+      --filter '- /k8s/forgejo-*/ssh/' \
+      --filter '- /k8s/forgejo-*/git/.ssh/' \
       --filter '- /k8s/*-redis-data*/**' \
       --filter '- /k8s/monitoring-*/**' \
       --filter '- **/logrotate.status' \
