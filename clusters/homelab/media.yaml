@@ -1,0 +1,54 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: media-repo-credentials
+  namespace: flux-system
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: scaleway-secret-manager
+    kind: ClusterSecretStore
+  target:
+    name: media-repo-credentials
+    template:
+      data:
+        username: "karl"
+        password: "{{ .token }}"
+  data:
+  - secretKey: token
+    remoteRef:
+      key: name:homelab
+      property: media_repo_token
+      version: latest_enabled
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: media
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://forgejo.sonley.dev/karl/media.git
+  secretRef:
+    name: media-repo-credentials
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: media
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: apps
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: media
+  path: ./
+  prune: true
+  wait: true
