@@ -58,6 +58,13 @@ spec:
             "storageTemplate": {
               "enabled": true,
               "template": "{{"{{y}}/{{MM}}/{{dd}}/{{filename}}"}}"
+            },
+            "job": {
+              "smartSearch":         { "concurrency": 1 },
+              "faceDetection":       { "concurrency": 1 },
+              "thumbnailGeneration": { "concurrency": 2 },
+              "videoConversion":     { "concurrency": 1 },
+              "metadataExtraction":  { "concurrency": 2 }
             }
           }
   data:
