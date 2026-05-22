@@ -195,7 +195,7 @@ spec:
             - pod-template-hash
       containers:
         - name: blocky
-          image: spx01/blocky:v0.29.0
+          image: spx01/blocky:v0.30.0
           env:
             - name: log.level
               value: "trace"
