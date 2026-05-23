@@ -77,6 +77,7 @@ data:
       --filter '- /k8s/forgejo-*/git/.ssh/' \
       --filter '- /k8s/*-redis-data*/**' \
       --filter '- /k8s/monitoring-*/**' \
+      --filter '- /k8s/media-*/**' \
       --filter '- **/logrotate.status' \
       --filter '- /k8s/n8n-*/config'"
 
