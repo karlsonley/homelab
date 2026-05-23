@@ -135,7 +135,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: papra
-          image: ghcr.io/papra-hq/papra:26.4.0-rootless
+          image: ghcr.io/papra-hq/papra:26.4.2-rootless
           ports:
             - containerPort: 1221
               name: http
