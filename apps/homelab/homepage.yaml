@@ -115,18 +115,7 @@ data:
         order: 10;
       }
   widgets.yaml: |
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: "cluster"
-        nodes:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
+    []
   services.yaml: |
     - Home:
         - Home Assistant:
