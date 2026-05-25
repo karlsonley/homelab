@@ -92,9 +92,15 @@ data:
       Home:
         style: row
         columns: 4
+      Media:
+        style: row
+        columns: 4
       Productivity:
         style: row
         columns: 4
+      Status:
+        style: row
+        columns: 2
       Infrastructure:
         style: row
         columns: 4

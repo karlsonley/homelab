@@ -431,10 +431,12 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "Status"
     gethomepage.dev/description: "Service Health"
-    gethomepage.dev/group: "Monitoring"
+    gethomepage.dev/group: "Status"
     gethomepage.dev/icon: "gatus.png"
     gethomepage.dev/href: "https://status.sonley.dev"
     gethomepage.dev/pod-selector: "app=gatus"
+    gethomepage.dev/widget.type: "gatus"
+    gethomepage.dev/widget.url: "http://gatus.gatus:8080"
 spec:
   entryPoints:
     - websecure
