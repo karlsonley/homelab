@@ -347,7 +347,7 @@ spec:
         - pod-template-hash
       containers:
       - name: gatus
-        image: ghcr.io/twin/gatus:v5.35.0
+        image: ghcr.io/twin/gatus:v5.36.0
         ports:
         - containerPort: 8080
           name: http
