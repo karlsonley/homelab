@@ -218,7 +218,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: redis
-        image: docker.io/valkey/valkey:9.0.4-alpine
+        image: docker.io/valkey/valkey:9.1.0-alpine
         command:
         - valkey-server
         - /etc/redis/redis.conf
