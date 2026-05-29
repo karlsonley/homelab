@@ -250,8 +250,17 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/default
+          - name: 'nodes'
+            orgId: 1
+            folder: 'Nodes'
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/nodes
       dashboardsConfigMaps:
         default: "grafana-dashboards"
+        nodes: "grafana-dashboards-nodes"
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
