@@ -14,6 +14,10 @@ configMapGenerator:
   - dashboards/traefik.json
   - dashboards/cloudnative-pg.json
   - dashboards/hwmon.json
+  options:
+    disableNameSuffixHash: true
+- name: grafana-dashboards-nodes
+  files:
   - dashboards/node-exporter-full.json
   options:
     disableNameSuffixHash: true
