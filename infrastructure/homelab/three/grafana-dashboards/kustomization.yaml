@@ -14,5 +14,6 @@ configMapGenerator:
   - dashboards/traefik.json
   - dashboards/cloudnative-pg.json
   - dashboards/hwmon.json
+  - dashboards/node-exporter-full.json
   options:
     disableNameSuffixHash: true
