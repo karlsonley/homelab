@@ -197,7 +197,7 @@ spec:
             memory: "256Mi"
             cpu: "50m"
           limits:
-            memory: "1Gi"
+            memory: "2Gi"
             cpu: "1000m"
       volumes:
       - name: data
@@ -419,7 +419,7 @@ spec:
             memory: "512Mi"
             cpu: "100m"
           limits:
-            memory: "1Gi"
+            memory: "2Gi"
             cpu: "1000m"
       - name: litestream
         image: litestream/litestream:0.3.13
