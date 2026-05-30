@@ -59,7 +59,7 @@ data:
     }
 
     run_ssh "Checking rclone" "rclone version"
-    run_ssh "Syncing /volume1" "rclone sync /volume1 jottacloud:nas_backup --verbose --stats 1m --transfers 4 --checkers 8 \
+    run_ssh "Syncing /volume1" "rclone sync /volume1 jottacloud:nas_backup --verbose --stats 1m --transfers 4 --checkers 8 --retries 10 \
       --filter '- lost+found/' \
       --filter '- /@*/**' \
       --filter '- /media/**' \
@@ -78,6 +78,7 @@ data:
       --filter '- /k8s/*-redis-data*/**' \
       --filter '- /k8s/monitoring-*/**' \
       --filter '- /k8s/media-*/**' \
+      --filter '- /k8s/*meilisearch*/**' \
       --filter '- **/logrotate.status' \
       --filter '- /k8s/n8n-*/config'"
 
