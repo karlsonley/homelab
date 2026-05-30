@@ -213,6 +213,11 @@ data:
         url: "https://immich.sonley.dev/api/server/ping"
         <<: *defaults
 
+      - name: Karakeep
+        group: Applications
+        url: "http://karakeep.karakeep:3000/api/auth/session"
+        <<: *defaults
+
       - name: Linkwarden
         group: Applications
         url: "https://linkwarden.sonley.dev"

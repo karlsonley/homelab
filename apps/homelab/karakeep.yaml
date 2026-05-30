@@ -1,0 +1,520 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: karakeep
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: karakeep-secrets
+  namespace: karakeep
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: karakeep-secrets
+    template:
+      data:
+        NEXTAUTH_SECRET: "{{ .nextauth_secret }}"
+        MEILI_MASTER_KEY: "{{ .meili_master_key }}"
+  data:
+  - secretKey: nextauth_secret
+    remoteRef:
+      key: name:homelab
+      property: karakeep_nextauth_secret
+      version: latest_enabled
+  - secretKey: meili_master_key
+    remoteRef:
+      key: name:homelab
+      property: karakeep_meili_master_key
+      version: latest_enabled
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: karakeep-oidc
+  namespace: karakeep
+spec:
+  refreshInterval: 15m
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: karakeep-oidc
+    template:
+      data:
+        OAUTH_CLIENT_ID: "{{ .oidc_client_id }}"
+        OAUTH_CLIENT_SECRET: "{{ .oidc_client_secret }}"
+  data:
+  - secretKey: oidc_client_id
+    remoteRef:
+      key: name:homelab
+      property: pocket_id_oidc_client_id
+      version: latest_enabled
+  - secretKey: oidc_client_secret
+    remoteRef:
+      key: name:homelab
+      property: pocket_id_oidc_client_secret
+      version: latest_enabled
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: karakeep-storage
+  namespace: karakeep
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: scaleway-secret-manager
+  target:
+    name: karakeep-storage
+    template:
+      data:
+        access_key_id: "{{ .access_key_id }}"
+        secret_access_key: "{{ .secret_access_key }}"
+  data:
+  - secretKey: access_key_id
+    remoteRef:
+      key: name:homelab
+      property: cnpg_backup_access_key_id
+      version: latest_enabled
+  - secretKey: secret_access_key
+    remoteRef:
+      key: name:homelab
+      property: cnpg_backup_secret_access_key
+      version: latest_enabled
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litestream-config
+  namespace: karakeep
+data:
+  litestream.yml: |
+    dbs:
+      - path: /data/db.db
+        replicas:
+          - type: s3
+            bucket: karakeep-db
+            path: db
+            endpoint: http://10.0.2.100:3900
+            access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+            secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+            force-path-style: true
+            region: garage
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: karakeep-assets
+  namespace: karakeep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: karakeep-meilisearch
+  namespace: karakeep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karakeep-meilisearch
+  namespace: karakeep
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: karakeep-meilisearch
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: karakeep-meilisearch
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: meilisearch
+        image: getmeili/meilisearch:v1.41.0
+        ports:
+        - containerPort: 7700
+          name: http
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: MEILI_NO_ANALYTICS
+          value: "true"
+        - name: MEILI_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-secrets
+              key: MEILI_MASTER_KEY
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 7700
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 7700
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: data
+          mountPath: /meili_data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "50m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: karakeep-meilisearch
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: karakeep-meilisearch
+  namespace: karakeep
+  labels:
+    app.kubernetes.io/name: karakeep-meilisearch
+spec:
+  selector:
+    app.kubernetes.io/name: karakeep-meilisearch
+  ports:
+  - port: 7700
+    targetPort: 7700
+    name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karakeep-chrome
+  namespace: karakeep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: karakeep-chrome
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: karakeep-chrome
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: chrome
+        image: gcr.io/zenika-hub/alpine-chrome:124
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        command:
+        - chromium-browser
+        - --headless
+        - --no-sandbox
+        - --disable-gpu
+        - --disable-dev-shm-usage
+        - --remote-debugging-address=0.0.0.0
+        - --remote-debugging-port=9222
+        - --hide-scrollbars
+        ports:
+        - containerPort: 9222
+          name: devtools
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: karakeep-chrome
+  namespace: karakeep
+  labels:
+    app.kubernetes.io/name: karakeep-chrome
+spec:
+  selector:
+    app.kubernetes.io/name: karakeep-chrome
+  ports:
+  - port: 9222
+    targetPort: 9222
+    name: devtools
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karakeep
+  namespace: karakeep
+  annotations:
+    secret.reloader.stakater.com/reload: "karakeep-secrets,karakeep-oidc,karakeep-storage"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: karakeep
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: karakeep
+    spec:
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+      - name: litestream-restore
+        image: litestream/litestream:0.3.13
+        args:
+        - restore
+        - -if-replica-exists
+        - -config
+        - /etc/litestream.yml
+        - /data/db.db
+        env:
+        - name: LITESTREAM_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-storage
+              key: access_key_id
+        - name: LITESTREAM_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-storage
+              key: secret_access_key
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: litestream-config
+          mountPath: /etc/litestream.yml
+          subPath: litestream.yml
+      containers:
+      - name: karakeep
+        image: ghcr.io/karakeep-app/karakeep:0.32.0
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NEXTAUTH_URL
+          value: "https://karakeep.sonley.dev"
+        - name: DATA_DIR
+          value: "/data"
+        - name: ASSETS_DIR
+          value: "/assets"
+        - name: MEILI_ADDR
+          value: "http://karakeep-meilisearch:7700"
+        - name: MEILI_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-secrets
+              key: MEILI_MASTER_KEY
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-secrets
+              key: NEXTAUTH_SECRET
+        - name: BROWSER_WEB_URL
+          value: "http://karakeep-chrome:9222"
+        - name: OAUTH_WELLKNOWN_URL
+          value: "https://pocket-id.sonley.dev/.well-known/openid-configuration"
+        - name: OAUTH_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-oidc
+              key: OAUTH_CLIENT_ID
+        - name: OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-oidc
+              key: OAUTH_CLIENT_SECRET
+        - name: OAUTH_PROVIDER_NAME
+          value: "Pocket ID"
+        - name: OAUTH_AUTO_REDIRECT
+          value: "true"
+        - name: DISABLE_SIGNUPS
+          value: "false"
+        - name: DISABLE_PASSWORD_AUTH
+          value: "true"
+        - name: DB_WAL_MODE
+          value: "true"
+        - name: LOG_LEVEL
+          value: "warn"
+        startupProbe:
+          httpGet:
+            path: /api/auth/session
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 30
+        readinessProbe:
+          httpGet:
+            path: /api/auth/session
+            port: 3000
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /api/auth/session
+            port: 3000
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: assets
+          mountPath: /assets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      - name: litestream
+        image: litestream/litestream:0.3.13
+        args:
+        - replicate
+        - -config
+        - /etc/litestream.yml
+        env:
+        - name: LITESTREAM_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-storage
+              key: access_key_id
+        - name: LITESTREAM_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: karakeep-storage
+              key: secret_access_key
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: litestream-config
+          mountPath: /etc/litestream.yml
+          subPath: litestream.yml
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "10m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+      - name: data
+        emptyDir: {}
+      - name: assets
+        persistentVolumeClaim:
+          claimName: karakeep-assets
+      - name: litestream-config
+        configMap:
+          name: litestream-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: karakeep
+  namespace: karakeep
+  labels:
+    app.kubernetes.io/name: karakeep
+spec:
+  selector:
+    app.kubernetes.io/name: karakeep
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: http
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: karakeep
+  namespace: karakeep
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Karakeep"
+    gethomepage.dev/description: "Bookmark Manager"
+    gethomepage.dev/group: "Productivity"
+    gethomepage.dev/icon: "karakeep.png"
+    gethomepage.dev/href: "https://karakeep.sonley.dev"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=karakeep"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`karakeep.sonley.dev`)
+      services:
+        - kind: Service
+          name: karakeep
+          namespace: karakeep
+          port: 3000
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: karakeep
+  namespace: karakeep
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: karakeep
+  updatePolicy:
+    updateMode: "Off"
