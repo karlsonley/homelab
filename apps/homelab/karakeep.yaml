@@ -158,7 +158,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: meilisearch
-        image: getmeili/meilisearch:v1.41.0
+        image: getmeili/meilisearch:v1.45.1
         ports:
         - containerPort: 7700
           name: http
