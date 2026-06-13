@@ -235,7 +235,7 @@ data:
 
       - name: Home Assistant Observer
         group: Applications
-        url: "http://10.0.2.251:4357"
+        url: "http://10.0.10.200:4357"
         <<: *defaults
 
       - name: Proxmox
