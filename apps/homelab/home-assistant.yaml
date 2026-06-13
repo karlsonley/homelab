@@ -28,7 +28,7 @@ metadata:
 addressType: IPv4
 endpoints:
   - addresses:
-      - 10.0.2.251
+      - 10.0.10.200
 ports:
   - name: http
     port: 8123
@@ -72,7 +72,7 @@ metadata:
 addressType: IPv4
 endpoints:
   - addresses:
-      - 10.0.2.251
+      - 10.0.10.200
 ports:
   - port: 4357
     protocol: TCP
