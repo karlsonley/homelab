@@ -308,7 +308,7 @@ spec:
           type: RuntimeDefault
       initContainers:
       - name: litestream-restore
-        image: litestream/litestream:0.3.13
+        image: litestream/litestream:0.5.12
         args:
         - restore
         - -if-replica-exists
@@ -422,7 +422,7 @@ spec:
             memory: "2Gi"
             cpu: "1000m"
       - name: litestream
-        image: litestream/litestream:0.3.13
+        image: litestream/litestream:0.5.12
         args:
         - replicate
         - -config
