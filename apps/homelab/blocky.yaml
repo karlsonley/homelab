@@ -145,6 +145,7 @@ data:
       customTTL: 1h
       mapping:
         sonley.dev: 10.0.2.200
+        new.sonley.dev: 10.0.10.100
     clientLookup:
       upstream: 10.0.2.1
     queryLog:
