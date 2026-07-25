@@ -299,6 +299,11 @@ data:
         url: "https://vaultwarden.sonley.dev/alive"
         <<: *defaults
 
+      - name: Donetick
+        group: Applications
+        url: "https://donetick.sonley.dev/api/v1/health"
+        <<: *defaults
+
       - name: Forgejo
         group: Infrastructure
         url: "https://forgejo.sonley.dev/-/health"
