@@ -153,6 +153,7 @@ data:
         speedtest.sonley.dev: 10.0.10.100 # migrated 2026-07-27, old app decommissioned
         hubble.sonley.dev: 10.0.10.100 # new-cluster only, no old-cluster equivalent
         honcho.sonley.dev: 10.0.10.100 # new-cluster only (AI memory store), no old-cluster equivalent
+        hermes.sonley.dev: 10.0.10.100 # new-cluster only (ops agent UI on VM 201), no old-cluster equivalent
     clientLookup:
       upstream: 10.0.2.1
     queryLog:
