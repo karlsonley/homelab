@@ -203,10 +203,6 @@ data:
         <<: *defaults
 
       # Applications
-      - name: Glance
-        group: Applications
-        url: "https://glance.sonley.dev"
-        <<: *defaults
 
       - name: Immich
         group: Applications
@@ -309,10 +305,6 @@ data:
         url: "https://forgejo.sonley.dev/-/health"
         <<: *defaults
 
-      - name: Speedtest Tracker
-        group: Monitoring
-        url: "http://speedtest-tracker.speedtest-tracker:80/api/healthcheck"
-        <<: *defaults
 ---
 apiVersion: apps/v1
 kind: Deployment
