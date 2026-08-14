@@ -265,19 +265,9 @@ data:
         url: "https://actual.sonley.dev"
         <<: *defaults
 
-      - name: BentoPDF
-        group: Applications
-        url: "https://bentopdf.sonley.dev"
-        <<: *defaults
-
       - name: Rackula
         group: Applications
         url: "https://rackula.sonley.dev"
-        <<: *defaults
-
-      - name: N8N
-        group: Applications
-        url: "http://n8n.n8n:5678/healthz"
         <<: *defaults
 
       - name: Papra
