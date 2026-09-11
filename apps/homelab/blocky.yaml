@@ -155,6 +155,7 @@ data:
         honcho.sonley.dev: 10.0.10.100 # new-cluster only (AI memory store), no old-cluster equivalent
         hermes.sonley.dev: 10.0.10.100 # new-cluster only (ops agent UI on VM 201), no old-cluster equivalent
         donetick.sonley.dev: 10.0.10.100 # migrated 2026-09-11, old app stopped below
+        vaultwarden.sonley.dev: 10.0.10.100 # migrated 2026-09-11, old app stopped below
     clientLookup:
       upstream: 10.0.2.1
     queryLog:

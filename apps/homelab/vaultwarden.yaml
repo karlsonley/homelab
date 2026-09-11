@@ -199,7 +199,10 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "vaultwarden"
 spec:
-  replicas: 1
+  # Stopped: migrated to the new cluster. Kept (not deleted) so the database, the PVC holding
+  # rsa_key.pem, and the barman backups stay available until the new instance is verified.
+  # The two sides DIVERGE from this moment — nothing is written here again.
+  replicas: 0
   strategy:
     type: Recreate
   selector:
