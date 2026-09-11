@@ -18,8 +18,6 @@ spec:
       dependsOnLayer: two
     - layer: four
       dependsOnLayer: three
-    - layer: five
-      dependsOnLayer: four
   resourcesTemplate: |
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1
