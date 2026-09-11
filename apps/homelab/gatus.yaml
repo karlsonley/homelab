@@ -244,11 +244,6 @@ data:
         url: "https://ntfy.sonley.dev/v1/health"
         <<: *defaults
 
-      - name: Mail Archiver
-        group: Applications
-        url: "https://mail-archiver.sonley.dev"
-        <<: *defaults
-
 
       - name: Actual Budget
         group: Applications
@@ -268,16 +263,6 @@ data:
       - name: Wallos
         group: Applications
         url: "http://wallos.wallos/health.php"
-        <<: *defaults
-
-      - name: Vaultwarden
-        group: Applications
-        url: "https://vaultwarden.sonley.dev/alive"
-        <<: *defaults
-
-      - name: Donetick
-        group: Applications
-        url: "https://donetick.sonley.dev/api/v1/health"
         <<: *defaults
 
       - name: Forgejo
