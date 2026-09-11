@@ -133,7 +133,7 @@ spec:
     alertmanager:
       alertmanagerSpec:
         externalUrl: "https://alertmanager.sonley.dev"
-        replicas: 3
+        replicas: 1
       config:
         route:
           receiver: ntfy-prometheus

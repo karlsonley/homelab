@@ -151,7 +151,7 @@ metadata:
   annotations:
     configmap.reloader.stakater.com/reload: "homepage-config"
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
