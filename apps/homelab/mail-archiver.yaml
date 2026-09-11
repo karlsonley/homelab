@@ -202,7 +202,9 @@ metadata:
   annotations:
     secret.reloader.stakater.com/reload: "mail-archiver-secrets"
 spec:
-  replicas: 1
+  # Stopped: migrating to the new cluster. Kept (not deleted) so the database and the
+  # NFS data folder stay available until the new instance is verified.
+  replicas: 0
   strategy:
     type: Recreate
   selector:
