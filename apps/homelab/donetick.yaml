@@ -259,7 +259,9 @@ spec:
   # Single replica: the due/overdue/pre-due scheduler jobs have no leader election,
   # so extra replicas would send duplicate notifications. The SSE hub is also
   # per-pod in-memory state.
-  replicas: 1
+  # Stopped: migrated to the new cluster. Kept (not deleted) so the database and its
+  # backups stay available until the new instance has been verified.
+  replicas: 0
   strategy:
     type: Recreate
   selector:
