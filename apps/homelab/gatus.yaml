@@ -245,11 +245,6 @@ data:
         <<: *defaults
 
 
-      - name: Actual Budget
-        group: Applications
-        url: "https://actual.sonley.dev"
-        <<: *defaults
-
       - name: Rackula
         group: Applications
         url: "https://rackula.sonley.dev"
@@ -258,11 +253,6 @@ data:
       - name: Papra
         group: Applications
         url: "http://papra.papra:1221"
-        <<: *defaults
-
-      - name: Wallos
-        group: Applications
-        url: "http://wallos.wallos/health.php"
         <<: *defaults
 
       - name: Forgejo
