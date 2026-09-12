@@ -245,11 +245,6 @@ data:
         <<: *defaults
 
 
-      - name: Rackula
-        group: Applications
-        url: "https://rackula.sonley.dev"
-        <<: *defaults
-
       - name: Papra
         group: Applications
         url: "http://papra.papra:1221"

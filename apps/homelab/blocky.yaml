@@ -154,10 +154,10 @@ data:
         hubble.sonley.dev: 10.0.10.100 # new-cluster only, no old-cluster equivalent
         honcho.sonley.dev: 10.0.10.100 # new-cluster only (AI memory store), no old-cluster equivalent
         hermes.sonley.dev: 10.0.10.100 # new-cluster only (ops agent UI on VM 201), no old-cluster equivalent
-        donetick.sonley.dev: 10.0.10.100 # migrated 2026-09-11, old app stopped below
-        vaultwarden.sonley.dev: 10.0.10.100 # migrated 2026-09-11, old app stopped below
-        wallos.sonley.dev: 10.0.10.100 # migrated 2026-09-12, old app stopped below
-        actual.sonley.dev: 10.0.10.100 # migrated 2026-09-12, old app stopped below
+        donetick.sonley.dev: 10.0.10.100 # migrated 2026-09-11, old app decommissioned
+        vaultwarden.sonley.dev: 10.0.10.100 # migrated 2026-09-11, old app decommissioned
+        wallos.sonley.dev: 10.0.10.100 # migrated 2026-09-12, old app decommissioned
+        actual.sonley.dev: 10.0.10.100 # migrated 2026-09-12, old app decommissioned
     clientLookup:
       upstream: 10.0.2.1
     queryLog:
