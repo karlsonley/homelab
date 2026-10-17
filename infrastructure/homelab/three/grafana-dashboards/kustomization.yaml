@@ -5,8 +5,6 @@ namespace: monitoring
 configMapGenerator:
 - name: grafana-dashboards
   files:
-  - dashboards/blocky.json
-  - dashboards/blocky-query.json
   - dashboards/cert-manager.json
   - dashboards/external-secrets.json
   - dashboards/kubernetes-monitoring-dashboard.json
