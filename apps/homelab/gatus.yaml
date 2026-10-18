@@ -165,21 +165,6 @@ data:
         url: "https://pocket-id.sonley.dev/.well-known/openid-configuration"
         <<: *defaults
 
-      - name: Grafana
-        group: Infrastructure
-        url: "https://grafana.sonley.dev/api/health"
-        <<: *defaults
-
-      - name: Prometheus
-        group: Infrastructure
-        url: "http://kube-prometheus-stack-prometheus.monitoring:9090/-/healthy"
-        <<: *defaults
-
-      - name: Alertmanager
-        group: Infrastructure
-        url: "http://kube-prometheus-stack-alertmanager.monitoring:9093/-/healthy"
-        <<: *defaults
-
       - name: Homepage
         group: Infrastructure
         url: "https://homepage.sonley.dev"
