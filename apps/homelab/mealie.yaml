@@ -104,7 +104,6 @@ spec:
   instances: 1
   # Single instance: a primary PDB would only block the node drain the 2 -> 1 shrink needs.
   enablePDB: false
-  maxSyncReplicas: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
   storage:
