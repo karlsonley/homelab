@@ -182,16 +182,6 @@ data:
         url: "https://mealie.sonley.dev/api/app/about"
         <<: *defaults
 
-      - name: Home Assistant
-        group: Applications
-        url: "https://home-assistant.sonley.dev"
-        <<: *defaults
-
-      - name: Home Assistant Observer
-        group: Applications
-        url: "http://10.0.10.200:4357"
-        <<: *defaults
-
       - name: ntfy
         group: Applications
         url: "https://ntfy.sonley.dev/v1/health"
