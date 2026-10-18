@@ -166,11 +166,6 @@ data:
         url: "https://pocket-id.sonley.dev/.well-known/openid-configuration"
         <<: *defaults
 
-      - name: Homepage
-        group: Infrastructure
-        url: "https://homepage.sonley.dev"
-        <<: *defaults
-
       # Applications
 
       - name: Immich
