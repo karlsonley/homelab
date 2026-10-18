@@ -88,7 +88,9 @@ metadata:
 spec:
   affinity:
     podAntiAffinityType: required
-  instances: 2
+  instances: 1
+  # Single instance: a primary PDB would only block the node drain the 2 -> 1 shrink needs.
+  enablePDB: false
   maxSyncReplicas: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:18.3
   primaryUpdateStrategy: unsupervised
@@ -295,7 +297,7 @@ metadata:
   name: gatus
   namespace: gatus
 spec:
-  minAvailable: 1
+  maxUnavailable: 1 # minAvailable 1 on one replica blocks every drain
   selector:
     matchLabels:
       app: gatus
