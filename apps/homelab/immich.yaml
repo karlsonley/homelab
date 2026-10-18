@@ -314,7 +314,7 @@ metadata:
   name: immich-machine-learning
   namespace: immich
 spec:
-  replicas: 1
+  replicas: 0 # stopped for the cutover (2026-10-18): the library must never be mounted by both clusters
   strategy:
     type: Recreate
   selector:
@@ -431,7 +431,7 @@ metadata:
   name: immich-server
   namespace: immich
 spec:
-  replicas: 1
+  replicas: 0 # stopped for the cutover (2026-10-18): the library must never be mounted by both clusters
   strategy:
     type: Recreate
   selector:
