@@ -267,7 +267,7 @@ metadata:
   name: homepage
   namespace: homepage
 spec:
-  minAvailable: 1
+  maxUnavailable: 1 # minAvailable 1 on one replica blocks every drain
   selector:
     matchLabels:
       app: homepage
