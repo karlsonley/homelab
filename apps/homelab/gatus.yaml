@@ -178,11 +178,6 @@ data:
         url: "https://immich.sonley.dev/api/server/ping"
         <<: *defaults
 
-      - name: Mealie
-        group: Applications
-        url: "https://mealie.sonley.dev/api/app/about"
-        <<: *defaults
-
       - name: ntfy
         group: Applications
         url: "https://ntfy.sonley.dev/v1/health"
