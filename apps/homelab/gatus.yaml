@@ -168,11 +168,6 @@ data:
 
       # Applications
 
-      - name: Immich
-        group: Applications
-        url: "https://immich.sonley.dev/api/server/ping"
-        <<: *defaults
-
       - name: ntfy
         group: Applications
         url: "https://ntfy.sonley.dev/v1/health"
