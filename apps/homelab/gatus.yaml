@@ -165,23 +165,6 @@ data:
         url: "https://pocket-id.sonley.dev/.well-known/openid-configuration"
         <<: *defaults
 
-      - name: Blocky UI
-        group: Applications
-        url: "http://blocky-ui.blocky:3000"
-        <<: *defaults
-
-      - name: Blocky DNS
-        group: Infrastructure
-        url: "10.0.2.201:53"
-        interval: 1m
-        dns:
-          query-name: "cloudflare.com"
-          query-type: "A"
-        conditions:
-          - "[DNS_RCODE] == NOERROR"
-        alerts:
-          - type: ntfy
-
       - name: Grafana
         group: Infrastructure
         url: "https://grafana.sonley.dev/api/health"
