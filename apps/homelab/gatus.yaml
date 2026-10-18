@@ -207,16 +207,6 @@ data:
         url: "http://10.0.10.200:4357"
         <<: *defaults
 
-      - name: Proxmox
-        group: Infrastructure
-        url: "https://proxmox.sonley.dev"
-        <<: *defaults
-
-      - name: NAS
-        group: Infrastructure
-        url: "https://nas.sonley.dev"
-        <<: *defaults
-
       - name: ntfy
         group: Applications
         url: "https://ntfy.sonley.dev/v1/health"
