@@ -217,20 +217,9 @@ data:
         url: "https://nas.sonley.dev"
         <<: *defaults
 
-      - name: Homebox
-        group: Applications
-        url: "https://homebox.sonley.dev/api/v1/status"
-        <<: *defaults
-
       - name: ntfy
         group: Applications
         url: "https://ntfy.sonley.dev/v1/health"
-        <<: *defaults
-
-
-      - name: Papra
-        group: Applications
-        url: "http://papra.papra:1221"
         <<: *defaults
 
 ---
